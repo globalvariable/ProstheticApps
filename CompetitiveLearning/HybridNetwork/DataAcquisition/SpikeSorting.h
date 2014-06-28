@@ -30,7 +30,7 @@ typedef SpikeEndHandlingChan	SpikeEndHandling[MAX_NUM_OF_MWA][MAX_NUM_OF_CHAN_PE
 
 SpikeEndHandling	spike_end_handling;
 
-void spike_sorting(unsigned int daq_num, TimeStamp previous_daq_time_ns);
+bool spike_sorting(unsigned int daq_num, TimeStamp previous_daq_time_ns);
 
 
 

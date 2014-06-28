@@ -8,6 +8,8 @@
 #include "../../../../../BlueSpike/Library/Misc/Misc.h"
 #include "../MwaConfig.h"
 #include "../TemplateMatching.h"
+#include "../../HybridNetworkData.h"
+#include "../../../../../IzNeuronSimulators/Library/Network/Network.h"
 
 int write_template_matching_data_v0(int num, ...);
 int read_template_matching_data_v0(int num, ...);

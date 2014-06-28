@@ -15,15 +15,15 @@ static void select_button_func (GtkWidget *btn_select);
 static void combos_select_synapse_func(GtkWidget *changed_combo);
 
 
-bool create_synaptic_wegiht_history_view_gui(void)
+bool create_synaptic_wegiht_history_view_gui(GtkWidget *tabs)
 {
 	unsigned int i;
 	GtkWidget *frame, *frame_label, *vbox, *vbox1, *hbox, *lbl;
-	HybridNetRLBMIData *bmi_data = get_hybrid_net_rl_bmi_data();
+
         frame = gtk_frame_new ("");
         frame_label = gtk_label_new ("     Synaptic Weights     ");      
    
-        gtk_notebook_append_page (GTK_NOTEBOOK (get_gui_tabs()), frame, frame_label);  
+        gtk_notebook_append_page (GTK_NOTEBOOK (tabs), frame, frame_label);  
 
  	vbox = gtk_vbox_new(FALSE, 0);
         gtk_container_add (GTK_CONTAINER (frame), vbox);
@@ -56,7 +56,7 @@ bool create_synaptic_wegiht_history_view_gui(void)
 		gtk_widget_set_size_request(combos_select_synapse_arr[i]->combo_neuron, 60, 25);	
         	gtk_box_pack_start(GTK_BOX(hbox), combos_select_synapse_arr[i]->combo_synapse , FALSE,FALSE,0);
 		gtk_widget_set_size_request(combos_select_synapse_arr[i]->combo_synapse, 60, 25);	
-		if(!update_texts_of_synapse_combos_when_add_remove(combos_select_synapse_arr[i], bmi_data->in_silico_network))
+		if(!update_texts_of_synapse_combos_when_add_remove(combos_select_synapse_arr[i], in_silico_network))
 			return print_message(ERROR_MSG ,"HybridNetRLBMI", "WeightHistoryView", "create_synaptic_wegiht_history_view_gui", "! update_texts_of_combos_when_add_remove().");	
 		btn_select_arr[i] = gtk_button_new_with_label("Select");
 		gtk_box_pack_start (GTK_BOX (hbox), btn_select_arr[i], FALSE, FALSE, 0);
@@ -87,14 +87,14 @@ bool create_synaptic_wegiht_history_view_gui(void)
 
 	g_signal_connect(G_OBJECT(btn_refresh), "clicked", G_CALLBACK(refresh_button_func), NULL);
 
-	gtk_widget_show_all(get_gui_tabs());
+	gtk_widget_show_all(tabs);
 	return TRUE;
 }
 
 static void combos_select_synapse_func(GtkWidget *changed_combo)
 {
 	unsigned int i;
-	HybridNetRLBMIData *bmi_data = get_hybrid_net_rl_bmi_data();
+
 	for (i = 0; i < NUM_OF_WEIGHT_HISTORY_GRAPHS; i++)
 	{
 		if (combos_select_synapse_arr[i]->combo_layer == changed_combo)
@@ -108,13 +108,12 @@ static void combos_select_synapse_func(GtkWidget *changed_combo)
 	}
 	if (i == NUM_OF_WEIGHT_HISTORY_GRAPHS)
 		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "WeightHistoryView", "combos_select_neuron_func", "i == NUM_OF_GRAPHS.");			
-	if(!update_texts_of_synapse_combos_when_change(combos_select_synapse_arr[i], bmi_data->in_silico_network, changed_combo))
+	if(!update_texts_of_synapse_combos_when_change(combos_select_synapse_arr[i], in_silico_network, changed_combo))
 		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "WeightHistoryView", "combos_select_neuron_func", "! update_texts_of_combos_when_change().");			
 }
 
 static void select_button_func (GtkWidget *btn_select)
 {
-	Network *in_silico_network = get_hybrid_net_rl_bmi_data()->in_silico_network;
 	unsigned int layer_num, nrn_grp_num, nrn_num, syn_num;
 	unsigned int i;
 	Neuron *neuron;
@@ -146,7 +145,6 @@ static void select_button_func (GtkWidget *btn_select)
 
 static void refresh_button_func (void)
 {
-	Network *in_silico_network = get_hybrid_net_rl_bmi_data()->in_silico_network;
 	unsigned int layer_num, nrn_grp_num, nrn_num, syn_num;
 	unsigned int i;
 	Neuron *neuron;

@@ -8,6 +8,8 @@
 
 #include <gtk/gtk.h>
 #include <stdbool.h>
+#include "../../HybridNetworkData.h"
+#include "../SnnData.h"
 #include "../../../BlueSpike/Library/Misc/Misc.h"
 #include "../NeuronDynamicsView/NeuronDynamicsView.h"
 #include "../BlueSpikeSpikePatternView/BlueSpikeSpikePatternView.h"
@@ -17,7 +19,7 @@
 #include "../WeightHistoryView/WeightHistoryView.h"
 #include "../AxonToLayerWeightView/AxonToLayerWeightView.h"
 
-bool buffer_view_handler(void);
+bool buffer_view_handler(GtkWidget *tabs);
 void send_global_resume_request_to_buffer_view_handler(void);
 void send_global_pause_request_to_buffer_view_handler(void);
 bool send_neuron_dynamics_graph_resume_request_to_buffer_view_handler(unsigned int graph_idx);

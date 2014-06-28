@@ -93,7 +93,7 @@ static void *rt_daq_handler(void *args)
 		// routines
 		if (!(cb_val & COMEDI_CB_EOS))
 		{
-			print_message(WARNING_MSG ,"PCIe6259", "RtTask", "rt_daq_handler", "! (cb_val & COMEDI_CB_EOS)."); 
+			print_message(WARNING_MSG ,"HybridNetwork", "DaqRtTask", "rt_daq_handler", "! (cb_val & COMEDI_CB_EOS)."); 
 		}
 
 		rt_comedi_command_data_read(ni6259_comedi_dev[daq_num], COMEDI_SUBDEVICE_AI, MAX_NUM_OF_CHANNEL_PER_DAQ_CARD*NUM_OF_SCAN, daq_data);
@@ -102,7 +102,11 @@ static void *rt_daq_handler(void *args)
 
 
 		handle_recording_data(daq_num, daq_data);
-		spike_sorting(daq_num, current_daq_time - (SAMPLING_INTERVAL*NUM_OF_SCAN));
+		if (! spike_sorting(daq_num, current_daq_time - (SAMPLING_INTERVAL*NUM_OF_SCAN)))
+		{
+			print_message(ERROR_MSG ,"HybridNetwork", "DaqRtTask", "rt_daq_handler", "! spike_sorting())."); 
+			break;
+		}
 
 		pthread_mutex_unlock(&(daq_mwa_map[daq_num].mutex)); 
 		// routines	

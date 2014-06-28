@@ -9,7 +9,7 @@
 #include "InterpolatedData.h"
 #include "BlueSpikeTimeStamp.h"
 #include "TemplateMatchingConfig.h"
-
+#include "../HybridNetworkData.h"
 
 
 #define TEMPLATE_PROBAB_THRES_NULL 0
@@ -38,7 +38,7 @@ typedef struct __TemplateMatchingUnitData
 typedef TemplateMatchingUnitData TemplateMatchingData[MAX_NUM_OF_MWA][MAX_NUM_OF_CHAN_PER_MWA][MAX_NUM_OF_UNIT_PER_CHAN+1]; // +1 for not sorted
 
 
-void run_template_matching(int mwa, int chan, int interpolated_data_buff_idx, TimeStamp peak_time);
+bool run_template_matching(int mwa, int chan, int interpolated_data_buff_idx, TimeStamp peak_time);
 
 
 TemplateMatchingData template_matching_data;

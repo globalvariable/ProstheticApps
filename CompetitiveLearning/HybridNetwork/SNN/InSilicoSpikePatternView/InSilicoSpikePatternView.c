@@ -9,14 +9,14 @@ static GtkWidget *btn_pause;
 static void pause_button_func(void);
 
 
-bool create_in_silico_spike_pattern_view_gui(void)
+bool create_in_silico_spike_pattern_view_gui(GtkWidget *tabs)
 {
 	GtkWidget *frame, *frame_label, *vbox, *hbox;
-	HybridNetRLBMIData *bmi_data = get_hybrid_net_rl_bmi_data();
+
         frame = gtk_frame_new ("");
         frame_label = gtk_label_new ("     InSilico Spikes     ");      
    
-        gtk_notebook_append_page (GTK_NOTEBOOK (get_gui_tabs()), frame, frame_label);  
+        gtk_notebook_append_page (GTK_NOTEBOOK (tabs), frame, frame_label);  
 
  	hbox = gtk_hbox_new(TRUE, 0);
         gtk_container_add (GTK_CONTAINER (frame), hbox);
@@ -29,13 +29,13 @@ bool create_in_silico_spike_pattern_view_gui(void)
 
 	btn_pause = gtk_button_new_with_label("P");
 	gtk_box_pack_start (GTK_BOX (hbox), btn_pause, FALSE, FALSE, 0);
-	in_silico_spike_pattern_graph = allocate_network_spike_pattern_graph_scroll(bmi_data->in_silico_network, hbox, in_silico_spike_pattern_graph, 3000, 1000000, 900, 1000, BUFFER_FOLLOWUP_LATENCY, bmi_data->in_silico_spike_data_for_graph,  NUM_OF_STATUS_MARKERS, bmi_data->trial_status_events, bmi_data->num_of_dedicated_cpu_threads);    // 3 seconds, 1000 samples/sec, 100 ms latency
+	in_silico_spike_pattern_graph = allocate_network_spike_pattern_graph_scroll(in_silico_network, hbox, in_silico_spike_pattern_graph, 3000, 1000000, 900, 1000, BUFFER_FOLLOWUP_LATENCY, in_silico_spike_data_for_graph,  NUM_OF_STATUS_MARKERS, trial_status_events, SNN_SIM_NUM_OF_DEDICATED_CPUS);    // 3 seconds, 1000 samples/sec, 100 ms latency
 	if (in_silico_spike_pattern_graph == NULL)
 		return print_message(ERROR_MSG ,"HybridNetRLBMI", "InSilicoSpikePatternView", "create_in_silico_spike_pattern_view_gui", "allocate_network_spike_pattern_graph_scroll_exclude_poisson()."); 		
 
 	g_signal_connect(G_OBJECT(btn_pause), "clicked", G_CALLBACK(pause_button_func), NULL);
 
-	gtk_widget_show_all(get_gui_tabs());
+	gtk_widget_show_all(tabs);
 
 	return TRUE;
 }

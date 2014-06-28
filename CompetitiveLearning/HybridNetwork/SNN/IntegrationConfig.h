@@ -1,0 +1,9 @@
+#ifndef INTEGRATION_CONFIG_H
+#define INTEGRATION_CONFIG_H
+
+
+
+#define PS_INTEGRATION_MAX_ORDER			40
+#define PS_INTEGRATION_ERR_TOL			1e-3
+
+#endif

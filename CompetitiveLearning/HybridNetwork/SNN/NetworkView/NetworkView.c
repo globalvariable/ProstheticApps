@@ -114,6 +114,8 @@ static GtkWidget *btn_load_data;
 static GtkWidget *entry_load_data_folder_num;
 
 
+static GtkWidget *static_tabs;
+
 // FIRST COLUMN
 static void combo_neuron_type_func (void);
 static void add_neurons_to_layer_button_func(void);
@@ -160,6 +162,8 @@ static gboolean timeout_callback(gpointer user_data) ;
 bool create_network_view_gui(GtkWidget *tabs)
 {
 	GtkWidget *frame, *frame_label, *table, *vbox, *hbox, *lbl;
+
+	static_tabs = tabs;
 
         frame = gtk_frame_new ("");
         frame_label = gtk_label_new ("     Network & Reward     ");      
@@ -877,7 +881,7 @@ bool create_network_view_gui(GtkWidget *tabs)
         gtk_box_pack_start(GTK_BOX(hbox),combos_select_neuron->combo_neuron , TRUE,TRUE,0);
 	combo_neuron_dynamics = allocate_neuron_dynamics_combo(hbox, combo_neuron_dynamics);
 
-/*	if(!update_texts_of_combos_when_add_remove(combos_select_neuron, get_hybrid_net_rl_bmi_data()->in_silico_network))  // it is put here since main() adds neurons to the layers previously
+/*	if(!update_texts_of_combos_when_add_remove(combos_select_neuron, ->in_silico_network))  // it is put here since main() adds neurons to the layers previously
 		return print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "create_network_view_gui(", "! update_texts_of_combos_when_add_remove().");	
 */
    	hbox = gtk_hbox_new(FALSE, 0);
@@ -1386,9 +1390,9 @@ static void ready_for_simulation_button_func(void)
 	eligibility_limited_buffer = allocate_eligibility_buffer_limited(in_silico_network, eligibility_limited_buffer, 3000000000/PARKER_SOCHACKI_INTEGRATION_STEP_SIZE, NUM_OF_ELIGIBILITY_GRAPHS);  // 3 second buffer for 1 second graph refresh rate. 
 	blue_spike_spike_data_for_graph = g_new0(SpikeData*, 1);
 	blue_spike_spike_data_for_graph[0] = allocate_spike_data(blue_spike_spike_data_for_graph[0], get_num_of_neurons_in_network(blue_spike_network)*3*500 ); // 3 seconds buffer assuming a neuron firing rate cannot be more than 500 Hz 
-	for (i = 0; i < num_of_dedicated_cpus; i ++)
+	for (i = 0; i < SNN_SIM_NUM_OF_DEDICATED_CPUS; i ++)
 		in_silico_spike_data_for_graph[i] = allocate_spike_data(in_silico_spike_data_for_graph[i], get_num_of_neurons_in_network(in_silico_network)*3*500 ); // 3 seconds buffer assuming a neuron firing rate cannot be more than 500 Hz 
-	for (i = 0; i < num_of_dedicated_cpus; i ++)
+	for (i = 0; i < SNN_SIM_NUM_OF_DEDICATED_CPUS; i ++)
 		in_silico_spike_data_for_recording[i] = allocate_spike_data(in_silico_spike_data_for_recording[i], get_num_of_neurons_in_network(in_silico_network)*3*500 ); // 3 seconds buffer assuming a neuron firing rate cannot be more than 500 Hz 
 
 	if(!update_texts_of_synapse_combos_when_add_remove(combos_select_synapse, in_silico_network))
@@ -1397,7 +1401,7 @@ static void ready_for_simulation_button_func(void)
 	if(!update_texts_of_combos_when_add_remove(combos_select_neuron, in_silico_network))
 		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "add_neurons_to_layer_button_func", "! update_texts_of_combos_when_add_remove().");	
 
-	if (!buffer_view_handler())
+	if (!buffer_view_handler(static_tabs))
 		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "ready_for_simulation_button_func", "! create_buffers_view_gui().");	
 
 	normalize_plastic_synaptic_weights(in_silico_network, total_synaptic_weights);
@@ -1411,7 +1415,7 @@ static void ready_for_simulation_button_func(void)
 	gtk_widget_set_sensitive(btn_submit_new_stdp_and_eligibility_for_synapse, TRUE);	
 	gtk_widget_set_sensitive(btn_create_recording_folder, TRUE);	
 
-	for (i = 0; i < num_of_dedicated_cpus; i++)
+	for (i = 0; i < SNN_SIM_NUM_OF_DEDICATED_CPUS; i++)
 	{
 		spike_data = in_silico_spike_data_for_recording[i];
 		spike_data->buff_idx_read = spike_data->buff_idx_write;
@@ -1460,7 +1464,7 @@ static void set_directory_btn_select_directory_to_save(void)
 {
 	char line[600];
 	FILE *fp = NULL;
-       	if ((fp = fopen("./path_initial_directory", "r")) == NULL)  
+       	if ((fp = fopen("./SNN/path_initial_directory", "r")) == NULL)  
        	{ 
 		print_message(ERROR_MSG ,"HybridNetRLBMI", "Gui", "set_directory_btn_select_directory_to_save", "Couldn't find file: ./path_initial_directory.");
 		print_message(ERROR_MSG ,"HybridNetRLBMI", "Gui", "set_directory_btn_select_directory_to_save", "/home is loaded as initial direcoty to create data folder.");
@@ -1550,7 +1554,7 @@ static gboolean timeout_callback(gpointer user_data)
 	}
 	else
 	{
-		for (i = 0; i < num_of_dedicated_cpus; i++)
+		for (i = 0; i < SNN_SIM_NUM_OF_DEDICATED_CPUS; i++)
 		{
 			reset_spike_data_read_idx(in_silico_spike_data_for_recording[i]);
 		}
@@ -1588,23 +1592,23 @@ static void load_data_button_func (void)
 static void create_default_network_button_func(void)
 {
 
-/*	if (! add_neurons_for_external_and_in_silico_network(get_hybrid_net_rl_bmi_data())) {
+	if (! add_neurons_for_in_silico_network()) {
 		print_message(ERROR_MSG ,"HybridNetRLBMI", "HybridNetRLBMI", "main", "! prepare_external_and_in_silico_network()."); return; }	
 
-	if (! submit_parker_sochacki_integration_precision(get_hybrid_net_rl_bmi_data())) {
+	if (! submit_parker_sochacki_integration_precision()) {
 		print_message(ERROR_MSG ,"HybridNetRLBMI", "HybridNetRLBMI", "main", "! submit_parker_sochacki_integration_precision().");return; }
 
-	if (! set_output_layers(get_hybrid_net_rl_bmi_data())) {
+	if (! set_output_layers()) {
 		print_message(ERROR_MSG ,"HybridNetRLBMI", "HybridNetRLBMI", "main", "! set_output_layers().");return; }
 
-	if (! connect_external_to_in_silico_network(get_hybrid_net_rl_bmi_data())) {
+	if (! connect_external_to_in_silico_network()) {
 		print_message(ERROR_MSG ,"HybridNetRLBMI", "HybridNetRLBMI", "main", "! connect_external_to_in_silico_network().");return; }
 
-	if (! connect_medium_spiny_neurons(get_hybrid_net_rl_bmi_data())) {
+	if (! connect_medium_spiny_neurons()) {
 		print_message(ERROR_MSG ,"HybridNetRLBMI", "HybridNetRLBMI", "main", "! connect_medium_spiny_neurons().");return; }
 
 	gtk_widget_set_sensitive(btn_create_default_network, FALSE);	
-	gtk_widget_set_sensitive(btn_submit_stdp_and_eligibility, TRUE);	*/
+	gtk_widget_set_sensitive(btn_submit_stdp_and_eligibility, TRUE);	
 }
 
 

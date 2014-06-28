@@ -549,9 +549,9 @@ static bool set_directory_btn_select_directory_to_load(void)
 	char line[600];
 	FILE *fp = NULL;
 	GFile *gfile_path; 
-       	if ((fp = fopen("SpikeSorter/path_initial_directory", "r")) == NULL)  
+       	if ((fp = fopen("DataAcquisition/SpikeSorter/path_initial_directory", "r")) == NULL)  
        	{ 
-       		printf ("ERROR: SpikeSorter: Couldn't find file: SpikeSorter/path_initial_directory\n"); 
+       		printf ("ERROR: SpikeSorter: Couldn't find file: DataAcquisition/SpikeSorter/path_initial_directory\n"); 
        		printf ("ERROR: SpikeSorter: /home is loaded as initial directory.\n");
 		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (btn_select_template_matching_file_to_load),"/home");
 		return FALSE;
@@ -560,7 +560,7 @@ static bool set_directory_btn_select_directory_to_load(void)
        	{
 		if (fgets(line, sizeof line, fp ) == NULL) 
 		{ 
-			printf("ERROR: SpikeSorter: Couldn' t read SpikeSorter/path_initial_directory\n"); 
+			printf("ERROR: SpikeSorter: Couldn' t read DataAcquisition/SpikeSorter/path_initial_directory\n"); 
        			printf ("ERROR: SpikeSorter: /home is loaded as initial directory.\n");
 			gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (btn_select_template_matching_file_to_load),"/home");
 			fclose(fp); 		
@@ -581,9 +581,9 @@ static void set_directory_btn_select_directory_to_save(void)
 {
 	char line[600];
 	FILE *fp = NULL;
-       	if ((fp = fopen("SpikeSorter/path_initial_directory", "r")) == NULL)  
+       	if ((fp = fopen("DataAcquisition/SpikeSorter/path_initial_directory", "r")) == NULL)  
        	{ 
-       		printf ("ERROR: SpikeSorter: Couldn't find file: SpikeSorter/path_initial_directory\n"); 
+       		printf ("ERROR: SpikeSorter: Couldn't find file: DataAcquisition/SpikeSorter/path_initial_directory\n"); 
        		printf ("ERROR: SpikeSorter: /home is loaded as initial direcoty to create data folder\n");
 		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (btn_select_folder_to_save_template_matching_file),"/home");
        	}
@@ -591,7 +591,7 @@ static void set_directory_btn_select_directory_to_save(void)
        	{
 		if (fgets(line, sizeof line, fp ) == NULL) 
 		{ 
-			printf("ERROR: SpikeSorter: Couldn' t read SpikeSorter/path_initial_directory\n"); 
+			printf("ERROR: SpikeSorter: Couldn' t read DataAcquisition/SpikeSorter/path_initial_directory\n"); 
        			printf ("ERROR: SpikeSorter: /home is loaded as initial direcoty to create data folder\n");
 			gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (btn_select_folder_to_save_template_matching_file),"/home");
 		}
@@ -913,17 +913,31 @@ static void unit_sorting_on_off_button_func(void)
 
 static void include_unit_on_off_button_func(void)
 {
- 	if (template_matching_data[disp_mwa][disp_chan][disp_unit].include_unit)
+	Neuron *nrn = get_neuron_address(blue_spike_network, disp_mwa, disp_chan, disp_unit);
+	if (sorted_spike_delivery_enabled)
 	{
-		template_matching_data[disp_mwa][disp_chan][disp_unit].include_unit = FALSE;
-		sorted_spikes[disp_mwa][disp_chan].included_units[disp_unit] = FALSE;
-		gtk_button_set_label (GTK_BUTTON(btn_include_unit_on_off),"Include Unit: OFF");
-	}
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "SpikeSorterGui", "include_unit_on_off_button_func", "Cannot turn on/off unit include during simulation. Turn sorting on/off is allowed"); 
+	}	
 	else
-	{
-		template_matching_data[disp_mwa][disp_chan][disp_unit].include_unit = TRUE;
-		sorted_spikes[disp_mwa][disp_chan].included_units[disp_unit] = TRUE;
-		gtk_button_set_label (GTK_BUTTON(btn_include_unit_on_off),"Include Unit: ON");
+	{	
+		if (disp_unit >= MAX_NUM_OF_UNIT_PER_CHAN_TO_HANDLE)	// included unit should not be higher than MAX_NUM_OF_UNIT_PER_CHAN_TO_HANDLE which is defined to speed up spike train visualization.
+		{		
+			return (void)print_message(ERROR_MSG ,"HybridNetwork", "SpikeSorterGui", "include_unit_on_off_button_func", "disp_unit >= MAX_NUM_OF_UNIT_PER_CHAN_TO_HANDLE"); 
+		}
+	 	if (template_matching_data[disp_mwa][disp_chan][disp_unit].include_unit)
+		{
+			nrn->include = FALSE;
+			template_matching_data[disp_mwa][disp_chan][disp_unit].include_unit = FALSE;
+			sorted_spikes[disp_mwa][disp_chan].included_units[disp_unit] = FALSE;
+			gtk_button_set_label (GTK_BUTTON(btn_include_unit_on_off),"Include Unit: OFF");
+		}
+		else
+		{
+			nrn->include = TRUE;
+			template_matching_data[disp_mwa][disp_chan][disp_unit].include_unit = TRUE;
+			sorted_spikes[disp_mwa][disp_chan].included_units[disp_unit] = TRUE;
+			gtk_button_set_label (GTK_BUTTON(btn_include_unit_on_off),"Include Unit: ON");
+		}
 	}
 	return;
 }

@@ -16,7 +16,10 @@ int main( int argc, char *argv[])
 		return print_message(ERROR_MSG ,"HybridNetwork", "HybridNetwork", "main","! initialize_snn_data().");		
 
 	if (! start_periodic_task()) // to evaluate system clock
-		return print_message(ERROR_MSG ,"HybridNetwork", "HybridNetwork", "main","! start_periodic_task().");		
+		return print_message(ERROR_MSG ,"HybridNetwork", "HybridNetwork", "main","! start_periodic_task().");	
+
+	if (! create_blue_spike_neuron_nodes())	
+		return print_message(ERROR_MSG ,"HybridNetwork", "HybridNetwork", "main","! create_blue_spike_nodes().");	
 
 	create_gui();
 	gtk_main();

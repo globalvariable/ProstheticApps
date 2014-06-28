@@ -1,4 +1,4 @@
-#include "STDPView.h"
+#include "StdpView.h"
 
 
 static GtkWidget **btn_pause_arr;
@@ -11,15 +11,14 @@ static void pause_button_func (GtkWidget *btn_pause);
 static void select_button_func (GtkWidget *btn_select);
 static void combos_select_synapse_func(GtkWidget *changed_combo);
 
-bool create_stdp_view_gui(void)
+bool create_stdp_view_gui(GtkWidget *tabs)
 {
 	unsigned int i;
 	GtkWidget *frame, *frame_label, *vbox, *vbox1, *hbox, *hbox1;
-	HybridNetRLBMIData *bmi_data = get_hybrid_net_rl_bmi_data();
         frame = gtk_frame_new ("");
         frame_label = gtk_label_new ("     STDP     ");      
    
-        gtk_notebook_append_page (GTK_NOTEBOOK (get_gui_tabs()), frame, frame_label);  
+        gtk_notebook_append_page (GTK_NOTEBOOK (tabs), frame, frame_label);  
 
  	vbox = gtk_vbox_new(FALSE, 0);
         gtk_container_add (GTK_CONTAINER (frame), vbox);
@@ -52,7 +51,7 @@ bool create_stdp_view_gui(void)
 		gtk_widget_set_size_request(combos_select_synapse_arr[i]->combo_neuron, 60, 25);	
         	gtk_box_pack_start(GTK_BOX(hbox), combos_select_synapse_arr[i]->combo_synapse , FALSE,FALSE,0);
 		gtk_widget_set_size_request(combos_select_synapse_arr[i]->combo_synapse, 60, 25);	
-		if(!update_texts_of_synapse_combos_when_add_remove(combos_select_synapse_arr[i], bmi_data->in_silico_network))
+		if(!update_texts_of_synapse_combos_when_add_remove(combos_select_synapse_arr[i], in_silico_network))
 			return print_message(ERROR_MSG ,"HybridNetRLBMI", "STDPView", "create_stdp_view_gui", "! update_texts_of_combos_when_add_remove().");	
   		hbox1 = gtk_hbox_new(FALSE, 0);
      		gtk_box_pack_start(GTK_BOX(hbox),hbox1, FALSE,FALSE,0);
@@ -61,7 +60,7 @@ bool create_stdp_view_gui(void)
 		gtk_box_pack_start (GTK_BOX (hbox), btn_select_arr[i], FALSE, FALSE, 0);
   		hbox = gtk_hbox_new(TRUE, 0);
     		gtk_box_pack_start(GTK_BOX(vbox1),hbox, TRUE,TRUE,0);
-		stdp_graph_arr[i] = allocate_stdp_graph_scroll_limited(hbox, stdp_graph_arr[i], GRAPH_LENGTHS/PARKER_SOCHACKI_INTEGRATION_STEP_SIZE, PARKER_SOCHACKI_INTEGRATION_STEP_SIZE, GRAPH_SCROLL_LENGTHS/PARKER_SOCHACKI_INTEGRATION_STEP_SIZE, BUFFER_FOLLOWUP_LATENCY, NUM_OF_STATUS_MARKERS, bmi_data->trial_status_events, bmi_data->stdp_limited_buffer, i);  // 100 ms latency
+		stdp_graph_arr[i] = allocate_stdp_graph_scroll_limited(hbox, stdp_graph_arr[i], GRAPH_LENGTHS/PARKER_SOCHACKI_INTEGRATION_STEP_SIZE, PARKER_SOCHACKI_INTEGRATION_STEP_SIZE, GRAPH_SCROLL_LENGTHS/PARKER_SOCHACKI_INTEGRATION_STEP_SIZE, BUFFER_FOLLOWUP_LATENCY, NUM_OF_STATUS_MARKERS, trial_status_events, stdp_limited_buffer, i);  // 100 ms latency
 		g_signal_connect(G_OBJECT(combos_select_synapse_arr[i]->combo_layer), "changed", G_CALLBACK(combos_select_synapse_func), combos_select_synapse_arr[i]->combo_layer);
 		g_signal_connect(G_OBJECT(combos_select_synapse_arr[i]->combo_neuron_group), "changed", G_CALLBACK(combos_select_synapse_func), combos_select_synapse_arr[i]->combo_neuron_group);	
 		g_signal_connect(G_OBJECT(combos_select_synapse_arr[i]->combo_neuron), "changed", G_CALLBACK(combos_select_synapse_func), combos_select_synapse_arr[i]->combo_neuron);
@@ -71,14 +70,13 @@ bool create_stdp_view_gui(void)
 		g_signal_connect(G_OBJECT(btn_select_arr[i]), "clicked", G_CALLBACK(select_button_func), btn_select_arr[i]);
 	}
 
-	gtk_widget_show_all(get_gui_tabs());
+	gtk_widget_show_all(tabs);
 	return TRUE;
 }
 
 static void combos_select_synapse_func(GtkWidget *changed_combo)
 {
 	unsigned int i;
-	HybridNetRLBMIData *bmi_data = get_hybrid_net_rl_bmi_data();
 	for (i = 0; i < NUM_OF_STDP_GRAPHS; i++)
 	{
 		if (combos_select_synapse_arr[i]->combo_layer == changed_combo)
@@ -92,7 +90,7 @@ static void combos_select_synapse_func(GtkWidget *changed_combo)
 	}
 	if (i == NUM_OF_STDP_GRAPHS)
 		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "STDPView", "combos_select_neuron_func", "i == NUM_OF_GRAPHS.");			
-	if(!update_texts_of_synapse_combos_when_change(combos_select_synapse_arr[i], bmi_data->in_silico_network, changed_combo))
+	if(!update_texts_of_synapse_combos_when_change(combos_select_synapse_arr[i], in_silico_network, changed_combo))
 		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "STDPView", "combos_select_neuron_func", "! update_texts_of_combos_when_change().");			
 }
 
@@ -124,7 +122,6 @@ static void pause_button_func (GtkWidget *btn_pause)
 
 static void select_button_func (GtkWidget *btn_select)
 {
-	HybridNetRLBMIData *bmi_data = get_hybrid_net_rl_bmi_data();
 	unsigned int layer_num, nrn_grp_num, nrn_num, syn_num;
 	int stdp_type;
 	unsigned int i;
@@ -139,7 +136,7 @@ static void select_button_func (GtkWidget *btn_select)
 		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "STDPView", "select_button_func", "! layer_neuron_group_neuron_synapse_get_selected().");	
 	if (!stdp_combo_get_selected(combo_stdp_arr[i], &stdp_type))
 		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "STDPView", "select_button_func", "! stdp_combo_get_selected().");	
-	if (!submit_selected_synapse_to_stdp_buffer_limited(bmi_data->in_silico_network, bmi_data->stdp_limited_buffer, layer_num, nrn_grp_num, nrn_num, syn_num, stdp_type, i))
+	if (!submit_selected_synapse_to_stdp_buffer_limited(in_silico_network, stdp_limited_buffer, layer_num, nrn_grp_num, nrn_num, syn_num, stdp_type, i))
 		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "STDPView", "select_button_func", "! submit_selected_neuron_to_stdp_buffer_limited().");	
 	return;
 }

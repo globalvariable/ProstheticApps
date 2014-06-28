@@ -2,6 +2,12 @@
 #define SNN_RT_TASK_H
 
 
+#include "../../NetworkConfig.h"
+#include "../HybridNetworkData.h"
+#include "SnnData.h"
+#include "../../../BlueSpike/Library/RtTaskStats/RtTaskStats.h"
+#include "../../../IzNeuronSimulators/Library/ParkerSochacki/PSPrePostResetSTDPElig.h"
+
 void create_snn_rt_threads(void);
 
 

@@ -73,6 +73,7 @@ int read_template_matching_data_v0(int num, ...)
 	int max_num_of_mwa, max_num_of_channel_per_mwa, max_num_of_unit_per_chan, num_of_samp_per_spike;
 	FILE *fp=NULL;
 	TemplateMatchingData	local_template_matching_data;
+	Neuron *nrn;	
 
   	va_list arguments;
 	va_start ( arguments, num );   
@@ -199,11 +200,15 @@ int read_template_matching_data_v0(int num, ...)
 				{
 					template_matching_data[i][j][k].include_unit = TRUE;	
 					sorted_spikes[i][j].included_units[k] = TRUE;	
+					nrn = get_neuron_address(blue_spike_network, i, j, k);	
+					nrn->include = TRUE;
 				}
 				else
 				{
 					template_matching_data[i][j][k].include_unit = FALSE;	
 					sorted_spikes[i][j].included_units[k] = FALSE;		
+					nrn = get_neuron_address(blue_spike_network, i, j, k);	
+					nrn->include = FALSE;		
 				}
 
 				if (local_template_matching_data[i][j][k].alarm_on)

@@ -7,8 +7,9 @@
 #include <stdbool.h>
 #include "../../../../../IzNeuronSimulators/Library/Combos/LayerNrnGrpNrnSynapseCombo.h"
 #include "../../../../../IzNeuronSimulators/Library/Graphs/SynapticWeightHistGraph.h"
+#include "../../HybridNetworkData.h"
 
-bool create_synaptic_wegiht_history_view_gui(void);
+bool create_synaptic_wegiht_history_view_gui(GtkWidget *tabs);
 
 
 #endif

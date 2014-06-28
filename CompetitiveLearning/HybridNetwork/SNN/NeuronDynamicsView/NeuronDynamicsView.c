@@ -13,15 +13,14 @@ static void pause_button_func (GtkWidget *btn_pause);
 static void select_button_func (GtkWidget *btn_select);
 static void combos_select_neuron_func(GtkWidget *changed_combo);
 
-bool create_neuron_dynamics_view_gui(void)
+bool create_neuron_dynamics_view_gui(GtkWidget *tabs)
 {
 	unsigned int i;
 	GtkWidget *frame, *frame_label, *vbox, *vbox1, *hbox, *hbox1;
-	HybridNetRLBMIData *bmi_data = get_hybrid_net_rl_bmi_data();
         frame = gtk_frame_new ("");
         frame_label = gtk_label_new ("     Neuron Dynamics     ");      
    
-        gtk_notebook_append_page (GTK_NOTEBOOK (get_gui_tabs()), frame, frame_label);  
+        gtk_notebook_append_page (GTK_NOTEBOOK (tabs), frame, frame_label);  
 
  	vbox = gtk_vbox_new(FALSE, 0);
         gtk_container_add (GTK_CONTAINER (frame), vbox);
@@ -56,7 +55,7 @@ bool create_neuron_dynamics_view_gui(void)
 		gtk_widget_set_size_request(combos_select_neuron_arr[i]->combo_neuron_group, 60, 25);	
         	gtk_box_pack_start(GTK_BOX(hbox), combos_select_neuron_arr[i]->combo_neuron , FALSE,FALSE,0);
 		gtk_widget_set_size_request(combos_select_neuron_arr[i]->combo_neuron, 60, 25);	
-		if(!update_texts_of_combos_when_add_remove(combos_select_neuron_arr[i], bmi_data->in_silico_network))
+		if(!update_texts_of_combos_when_add_remove(combos_select_neuron_arr[i], in_silico_network))
 			return print_message(ERROR_MSG ,"HybridNetRLBMI", "NeuronDynamicsView", "create_neuron_dynamics_view_gui", "! update_texts_of_combos_when_add_remove().");	
   		hbox1 = gtk_hbox_new(FALSE, 0);
      		gtk_box_pack_start(GTK_BOX(hbox),hbox1, FALSE,FALSE,0);
@@ -65,7 +64,7 @@ bool create_neuron_dynamics_view_gui(void)
 		gtk_box_pack_start (GTK_BOX (hbox), btn_select_arr[i], FALSE, FALSE, 0);
   		hbox = gtk_hbox_new(TRUE, 0);
     		gtk_box_pack_start(GTK_BOX(vbox1),hbox, TRUE,TRUE,0);
-		neuron_dynamics_graph_arr[i] = allocate_neuron_dynamics_graph_scroll_limited(hbox, neuron_dynamics_graph_arr[i], GRAPH_LENGTHS/PARKER_SOCHACKI_INTEGRATION_STEP_SIZE, PARKER_SOCHACKI_INTEGRATION_STEP_SIZE, GRAPH_SCROLL_LENGTHS/PARKER_SOCHACKI_INTEGRATION_STEP_SIZE, BUFFER_FOLLOWUP_LATENCY, NUM_OF_STATUS_MARKERS, bmi_data->trial_status_events, bmi_data->neuron_dynamics_limited_buffer, i);  // 100 ms latency
+		neuron_dynamics_graph_arr[i] = allocate_neuron_dynamics_graph_scroll_limited(hbox, neuron_dynamics_graph_arr[i], GRAPH_LENGTHS/PARKER_SOCHACKI_INTEGRATION_STEP_SIZE, PARKER_SOCHACKI_INTEGRATION_STEP_SIZE, GRAPH_SCROLL_LENGTHS/PARKER_SOCHACKI_INTEGRATION_STEP_SIZE, BUFFER_FOLLOWUP_LATENCY, NUM_OF_STATUS_MARKERS, trial_status_events, neuron_dynamics_limited_buffer, i);  // 100 ms latency
 		g_signal_connect(G_OBJECT(combos_select_neuron_arr[i]->combo_layer), "changed", G_CALLBACK(combos_select_neuron_func), combos_select_neuron_arr[i]->combo_layer);
 		g_signal_connect(G_OBJECT(combos_select_neuron_arr[i]->combo_neuron_group), "changed", G_CALLBACK(combos_select_neuron_func), combos_select_neuron_arr[i]->combo_neuron_group);	
 		g_signal_connect(G_OBJECT(combos_select_neuron_arr[i]->combo_neuron), "changed", G_CALLBACK(combos_select_neuron_func), combos_select_neuron_arr[i]->combo_neuron);
@@ -75,14 +74,14 @@ bool create_neuron_dynamics_view_gui(void)
 	}
 
 	g_signal_connect(G_OBJECT(btn_global_pause), "clicked", G_CALLBACK(global_pause_button_func), NULL);
-	gtk_widget_show_all(get_gui_tabs());
+	gtk_widget_show_all(tabs);
 	return TRUE;
 }
 
 static void combos_select_neuron_func(GtkWidget *changed_combo)
 {
 	unsigned int i;
-	HybridNetRLBMIData *bmi_data = get_hybrid_net_rl_bmi_data();
+
 	for (i = 0; i < NUM_OF_NEURON_DYNAMICS_GRAPHS; i++)
 	{
 		if (combos_select_neuron_arr[i]->combo_layer == changed_combo)
@@ -94,7 +93,7 @@ static void combos_select_neuron_func(GtkWidget *changed_combo)
 	}
 	if (i == NUM_OF_NEURON_DYNAMICS_GRAPHS)
 		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NeuronDynamicsView", "combos_select_neuron_func", "i == NUM_OF_GRAPHS.");			
-	if(!update_texts_of_combos_when_change(combos_select_neuron_arr[i], bmi_data->in_silico_network, changed_combo))
+	if(!update_texts_of_combos_when_change(combos_select_neuron_arr[i], in_silico_network, changed_combo))
 		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NeuronDynamicsView", "combos_select_neuron_func", "! update_texts_of_combos_when_change().");			
 }
 
@@ -126,7 +125,6 @@ static void pause_button_func (GtkWidget *btn_pause)
 
 static void select_button_func (GtkWidget *btn_select)
 {
-	HybridNetRLBMIData *bmi_data = get_hybrid_net_rl_bmi_data();
 	unsigned int layer_num, nrn_grp_num, nrn_num;
 	int dynamics_type;
 	unsigned int i;
@@ -141,7 +139,7 @@ static void select_button_func (GtkWidget *btn_select)
 		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "select_button_func", "! layer_neuron_group_neuron_get_selected().");	
 	if (!neuron_dynamics_combo_get_selected(combo_neuron_dynamics_arr[i], &dynamics_type))
 		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "select_button_func", "! neuron_dynamics_combo_get_selected().");	
-	if (!submit_selected_neuron_to_neuron_dynamics_buffer_limited(bmi_data->in_silico_network, bmi_data->neuron_dynamics_limited_buffer, layer_num, nrn_grp_num, nrn_num, dynamics_type, i))
+	if (!submit_selected_neuron_to_neuron_dynamics_buffer_limited(in_silico_network, neuron_dynamics_limited_buffer, layer_num, nrn_grp_num, nrn_num, dynamics_type, i))
 		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "select_button_func", "! submit_selected_neuron_to_neuron_dynamics_buffer_limited().");	
 	return;
 }
@@ -158,11 +156,6 @@ static void global_pause_button_func (void)
 		send_global_pause_request_to_buffer_view_handler();
 		gtk_button_set_label (GTK_BUTTON(btn_global_pause),"Paused");
 	}
-}
-
-unsigned int get_num_neuron_dynamics_graphs_w_scroll(void)
-{
-	return  NUM_OF_NEURON_DYNAMICS_GRAPHS;
 }
 
 NeuronDynamicsGraphScrollLimited** get_neuron_dynamics_graphs_w_scroll_ptr(void)

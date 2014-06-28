@@ -9,7 +9,7 @@
 #include "../../../../../IzNeuronSimulators/Library/Graphs/EligibilityGraph.h"
 #include "../../../../../IzNeuronSimulators/Library/Combos/LayerNrnGrpNrnSynapseCombo.h"
 
-bool create_eligibility_view_gui(void);
+bool create_eligibility_view_gui(GtkWidget *tabs);
 unsigned int get_num_eligibility_graphs_w_scroll(void);
 EligibilityGraphScrollLimited** get_eligibility_graphs_w_scroll_ptr(void);
 

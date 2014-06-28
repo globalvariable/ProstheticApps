@@ -7,10 +7,10 @@
 #include <stdbool.h>
 #include "../BufferViewHandler/BufferViewHandler.h"
 #include "../../../../../IzNeuronSimulators/Library/Graphs/NeuronDynamicsGraph.h"
+#include "../../../../../IzNeuronSimulators/Library/Combos/LayerNrnGrpNeuronCombo.h"
+#include "../../../../../IzNeuronSimulators/Library/Combos/NeuronDynamicsCombo.h"
 
-
-bool create_neuron_dynamics_view_gui(void);
-unsigned int get_num_neuron_dynamics_graphs_w_scroll(void);
+bool create_neuron_dynamics_view_gui(GtkWidget *tabs);
 NeuronDynamicsGraphScrollLimited** get_neuron_dynamics_graphs_w_scroll_ptr(void);
 void send_global_pause_button_sensitive_request(void);
 

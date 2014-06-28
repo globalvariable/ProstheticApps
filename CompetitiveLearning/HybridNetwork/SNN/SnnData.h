@@ -23,7 +23,6 @@ NeuralNet2GuiMsg				*msgs_neural_net_2_gui;
 NeuronDynamicsBufferLimited	*neuron_dynamics_limited_buffer;
 STDPBufferLimited			*stdp_limited_buffer;
 EligibilityBufferLimited			*eligibility_limited_buffer;
-SpikeData					**blue_spike_spike_data_for_graph;   // for visualization
 SpikeData					**in_silico_spike_data_for_graph;  // for visualization  // each thread writes to one buffer.
 SpikeData					**in_silico_spike_data_for_recording;  // for recording to hdd // each thread writes to one buffer.
 
@@ -36,7 +35,7 @@ NeuralNet2GuiMsg				*msgs_neural_net_2_gui;
 TrialStatusEvents				*trial_status_events;   // to show status changed in graphs
 
 
-unsigned int					num_of_dedicated_cpus;
+
 
 double						total_synaptic_weights;
 

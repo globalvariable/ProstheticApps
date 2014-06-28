@@ -5,10 +5,11 @@
 
 #include <gtk/gtk.h>
 #include <stdbool.h>
-#include "../../../../../IzNeuronSimulators/Library/Combos/LayerNrnGrpNrnSynapseCombo.h"
+#include "../../../../../IzNeuronSimulators/Library/Combos/LayerNrnGrpNeuronCombo.h"
 #include "../../../../../IzNeuronSimulators/Library/Graphs/SynapticWeightHistGraph.h"
+#include "../../HybridNetworkData.h"
 
-bool create_axon_to_layer_weight_view_gui(void);
+bool create_axon_to_layer_weight_view_gui(GtkWidget *tabs);
 
 
 #endif

@@ -22,6 +22,8 @@
 #include "FileHandler.h"
 #include "../../../../../BlueSpike/Library/Misc/Misc.h"
 #include "../TemplateMatching.h"
+#include "../../HybridNetworkData.h"
+#include "../../../../../IzNeuronSimulators/Library/Network/Network.h"
 
 
 #define SPIKE_MEM_TO_DISPLAY_UNIT 30

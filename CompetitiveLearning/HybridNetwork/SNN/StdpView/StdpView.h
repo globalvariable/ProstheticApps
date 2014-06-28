@@ -10,7 +10,7 @@
 #include "../../../../../IzNeuronSimulators/Library/Combos/LayerNrnGrpNrnSynapseCombo.h"
 #include "../../../../../IzNeuronSimulators/Library/Combos/STDPCombo.h"
 
-bool create_stdp_view_gui(void);
+bool create_stdp_view_gui(GtkWidget *tabs);
 unsigned int get_num_stdp_graphs_w_scroll(void);
 STDPGraphScrollLimited** get_stdp_graphs_w_scroll_ptr(void);
 

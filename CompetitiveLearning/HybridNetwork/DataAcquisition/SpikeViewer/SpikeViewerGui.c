@@ -414,9 +414,9 @@ static bool set_directory_btn_select_directory_to_load(void)
 	char line[600];
 	FILE *fp = NULL;
 	GFile *gfile_path; 
-       	if ((fp = fopen("SpikeViewer/path_initial_directory", "r")) == NULL)  
+       	if ((fp = fopen("DataAcquisition/SpikeViewer/path_initial_directory", "r")) == NULL)  
        	{ 
-       		printf ("ERROR: SpikeViewer: Couldn't find file: SpikeViewer/path_initial_directory\n"); 
+       		printf ("ERROR: SpikeViewer: Couldn't find file: DataAcquisition/SpikeViewer/path_initial_directory\n"); 
        		printf ("ERROR: SpikeViewer: /home is loaded as initial directory.\n");
 		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (btn_select_spike_thresholds_file_to_load),"/home");
 		return FALSE;
@@ -425,7 +425,7 @@ static bool set_directory_btn_select_directory_to_load(void)
        	{
 		if (fgets(line, sizeof line, fp ) == NULL) 
 		{ 
-			printf("ERROR: SpikeViewer: Couldn' t read SpikeViewer/path_initial_directory\n"); 
+			printf("ERROR: SpikeViewer: Couldn' t read DataAcquisition/SpikeViewer/path_initial_directory\n"); 
        			printf ("ERROR: SpikeViewer: /home is loaded as initial directory.\n");
 			gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (btn_select_spike_thresholds_file_to_load),"/home");
 			fclose(fp); 		
@@ -446,9 +446,9 @@ static void set_directory_btn_select_directory_to_save(void)
 {
 	char line[600];
 	FILE *fp = NULL;
-       	if ((fp = fopen("SpikeViewer/path_initial_directory", "r")) == NULL)  
+       	if ((fp = fopen("DataAcquisition/SpikeViewer/path_initial_directory", "r")) == NULL)  
        	{ 
-       		printf ("ERROR: SpikeViewer: Couldn't find file: SpikeViewer/path_initial_directory\n"); 
+       		printf ("ERROR: SpikeViewer: Couldn't find file: DataAcquisition/SpikeViewer/path_initial_directory\n"); 
        		printf ("ERROR: SpikeViewer: /home is loaded as initial direcoty to create data folder\n");
 		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (btn_select_folder_to_save_spike_thresholds_file),"/home");
        	}
@@ -456,7 +456,7 @@ static void set_directory_btn_select_directory_to_save(void)
        	{
 		if (fgets(line, sizeof line, fp ) == NULL) 
 		{ 
-			printf("ERROR: SpikeViewer: Couldn' t read SpikeViewer/path_initial_directory\n"); 
+			printf("ERROR: SpikeViewer: Couldn' t read DataAcquisition/SpikeViewer/path_initial_directory\n"); 
        			printf ("ERROR: SpikeViewer: /home is loaded as initial direcoty to create data folder\n");
 			gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (btn_select_folder_to_save_spike_thresholds_file),"/home");
 		}

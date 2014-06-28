@@ -2,11 +2,11 @@
 
 
 static bool is_index_between_indexes(int start_idx, int end_idx, int this_idx);
-static void handle_spike_end_handling_buffer(unsigned int mwa,  unsigned int mwa_chan);
-static void find_spike_end(unsigned int mwa,  unsigned int mwa_chan, TimeStamp previous_daq_time_ns);
+static bool handle_spike_end_handling_buffer(unsigned int mwa,  unsigned int mwa_chan);
+static bool find_spike_end(unsigned int mwa,  unsigned int mwa_chan, TimeStamp previous_daq_time_ns);
 
 
-void spike_sorting(unsigned int daq_num, TimeStamp previous_daq_time_ns)
+bool spike_sorting(unsigned int daq_num, TimeStamp previous_daq_time_ns)
 {
 	unsigned int i;
 	DaqMwaMapItem *map_item;
@@ -17,9 +17,12 @@ void spike_sorting(unsigned int daq_num, TimeStamp previous_daq_time_ns)
 		map_item = &(daq_mwa_map[daq_num].map[i]);
 		if (map_item->mwa == MAX_NUM_OF_MWA)   // this daq channel not mapped. skip this channel.
 			continue;
-		handle_spike_end_handling_buffer(map_item->mwa, map_item->channel);
-		find_spike_end(map_item->mwa, map_item->channel, previous_daq_time_ns);	
+		if (! handle_spike_end_handling_buffer(map_item->mwa, map_item->channel))
+			return print_message(ERROR_MSG ,"HybridNetwork", "SpikeSorting", "spike_sorting", "! handle_spike_end_handling_buffer()."); 
+		if (! find_spike_end(map_item->mwa, map_item->channel, previous_daq_time_ns))
+			return print_message(ERROR_MSG ,"HybridNetwork", "SpikeSorting", "spike_sorting", "! find_spike_end()."); 
 	}
+	return TRUE;
 }	
 
 // Multiple Daq Card tasks can write into these arrays since each task writes for different MWA-Channels.
@@ -28,7 +31,7 @@ static bool in_spike_arr[MAX_NUM_OF_MWA][MAX_NUM_OF_CHAN_PER_MWA] = {{0}};
 static bool after_in_spike_arr[MAX_NUM_OF_MWA][MAX_NUM_OF_CHAN_PER_MWA] = {{0}};
 static int in_spike_sample_cntr_arr[MAX_NUM_OF_MWA][MAX_NUM_OF_CHAN_PER_MWA] = {{0}};
 
-static void find_spike_end(unsigned int mwa,  unsigned int mwa_chan, TimeStamp previous_daq_time_ns)
+static bool find_spike_end(unsigned int mwa,  unsigned int mwa_chan, TimeStamp previous_daq_time_ns)
 {
 	InterpolatedDataChan	*interpolated_data_chan;
 	InterpolatedDataSample	*interpolated_data_chan_buff;
@@ -51,7 +54,7 @@ static void find_spike_end(unsigned int mwa,  unsigned int mwa_chan, TimeStamp p
 	{
 		interpolated_data_buff_idx_prev[mwa][mwa_chan] = interpolated_data_chan->buff_idx_write;
 		spike_end_handling_chan->buff_start_idx = spike_end_handling_chan->buff_write_idx;
-		return;
+		return TRUE;
 	}
 	
 
@@ -126,7 +129,8 @@ static void find_spike_end(unsigned int mwa,  unsigned int mwa_chan, TimeStamp p
 				
 			if (is_index_between_indexes(interpolated_data_buff_idx_prev[mwa][mwa_chan], interpolated_data_chan->buff_idx_write, spike_end_idx))
 			{
-				run_template_matching(mwa, mwa_chan, spike_end_idx, peak_time); 
+				if (! run_template_matching(mwa, mwa_chan, spike_end_idx, peak_time))
+					return print_message(ERROR_MSG ,"HybridNetwork", "SpikeSorting", "find_spike_end", "! run_template_matching()."); 
 			}			
 			else 	//   Write spike end into shared_memory->spike_end_handing
 			{
@@ -148,10 +152,12 @@ static void find_spike_end(unsigned int mwa,  unsigned int mwa_chan, TimeStamp p
 	after_in_spike_arr[mwa][mwa_chan] = after_in_spike;
 	in_spike_sample_cntr_arr[mwa][mwa_chan] = in_spike_sample_cntr;
 	interpolated_data_buff_idx_prev[mwa][mwa_chan] = interpolated_data_chan->buff_idx_write;
+
+	return TRUE;
 }
 
 
-static void handle_spike_end_handling_buffer(unsigned int mwa,  unsigned int mwa_chan)
+static bool handle_spike_end_handling_buffer(unsigned int mwa,  unsigned int mwa_chan)
 {
 	int interpolated_data_buff_idx;	
 	TimeStamp	peak_time;
@@ -174,7 +180,8 @@ static void handle_spike_end_handling_buffer(unsigned int mwa,  unsigned int mwa
 		
 		if (is_index_between_indexes(interpolated_data_buff_idx_prev[mwa][mwa_chan], interpolated_data[mwa][mwa_chan].buff_idx_write, interpolated_data_buff_idx))
 		{
-			run_template_matching(mwa, mwa_chan, interpolated_data_buff_idx, peak_time);
+			if (! run_template_matching(mwa, mwa_chan, interpolated_data_buff_idx, peak_time))
+				return print_message(ERROR_MSG ,"HybridNetwork", "SpikeSorting", "handle_spike_end_handling_buffer", "! run_template_matching()."); 
 		}	
 		else
 		{
@@ -192,6 +199,7 @@ static void handle_spike_end_handling_buffer(unsigned int mwa,  unsigned int mwa
 			idx = 0;
 	}
 	spike_end_handling_chan->buff_start_idx = end_idx;
+	return TRUE;
 }
 
 

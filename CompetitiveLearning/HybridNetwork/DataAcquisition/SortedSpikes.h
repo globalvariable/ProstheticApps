@@ -2,7 +2,7 @@
 #define SORTED_SPIKES_H
 
 #include "../../../../BlueSpike/System/TimeStamp/TimeStamp.h"
-
+#include "MwaConfig.h"
 
 #define BLUESPIKE_SORTED_SPIKE_BUFF_SIZE 1000      // 1 seconds of buffer at worst scenario (if each channel spikes every millisecond )
 
@@ -24,6 +24,6 @@ typedef struct __SortedSpikeChan
 typedef SortedSpikeChan  SortedSpikes[MAX_NUM_OF_MWA][MAX_NUM_OF_CHAN_PER_MWA];
 
 
-SortedSpikes sorted_spikes;
+
 
 #endif

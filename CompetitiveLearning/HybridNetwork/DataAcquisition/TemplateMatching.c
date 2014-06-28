@@ -7,14 +7,14 @@ static double template_matching_diff_temporary[NUM_OF_SAMP_PER_SPIKE];
 static double template_matching_exponent;	
 static double template_matching_probabl[MAX_NUM_OF_UNIT_PER_CHAN];	
 
-void run_template_matching(int mwa, int chan, int interpolated_data_buff_idx, TimeStamp peak_time)
+bool run_template_matching(int mwa, int chan, int interpolated_data_buff_idx, TimeStamp peak_time)
 {
 
 	TemplateMatchingUnitData *unit_template_data;	
 	InterpolatedDataSample	*interpolated_data_chan_buff;
 	BlueSpikeTimeStampItem *blue_spike_time_chan_buff;
 	SortedSpikeItem	*sorted_spike_chan_buff;
-
+	Neuron *neuron;
 	double greatest;	
 	int i, j, unit, greatest_idx;
 	int blue_spike_time_stamp_buff_idx_write;
@@ -116,7 +116,18 @@ void run_template_matching(int mwa, int chan, int interpolated_data_buff_idx, Ti
 		if ((sorted_spike_buff_idx_write +1) ==  BLUESPIKE_SORTED_SPIKE_BUFF_SIZE )	   // first check then increment. if first increment and check end of buffer might lead to problem during reading.
 			sorted_spikes[mwa][chan].buff_idx_write = 0;
 		else
-			sorted_spikes[mwa][chan].buff_idx_write++;			
+			sorted_spikes[mwa][chan].buff_idx_write++;
+
+		if (sorted_spike_delivery_enabled)
+		{
+			neuron = get_neuron_address(blue_spike_network, mwa, chan, greatest_idx);
+
+			if (!schedule_synaptic_event(neuron, peak_time)) 
+				return print_message(ERROR_MSG ,"HybridNetwork", "TemplateMatching", "run_template_matching", "! schedule_event()."); 
+
+			write_to_spike_data(blue_spike_spike_data_for_graph[0], mwa, chan, greatest_idx, peak_time);	
+		}			
 	}
+	return TRUE;
 }
 
