@@ -13,13 +13,19 @@ int main( int argc, char *argv[])
 	gtk_init(&argc, &argv);
 
 	if (! initialize_snn_data())
-		return print_message(ERROR_MSG ,"HybridNetwork", "HybridNetwork", "main","! initialize_snn_data().");		
+		return print_message(ERROR_MSG ,"HybridNetwork", "HybridNetwork", "main","! initialize_snn_data().");	
+
+	if (! initialize_blue_spike_data())	
+		return print_message(ERROR_MSG ,"HybridNetwork", "HybridNetwork", "main","! initialize_blue_spike_data().");		
 
 	if (! start_periodic_task()) // to evaluate system clock
 		return print_message(ERROR_MSG ,"HybridNetwork", "HybridNetwork", "main","! start_periodic_task().");	
 
-	if (! create_blue_spike_neuron_nodes())	
-		return print_message(ERROR_MSG ,"HybridNetwork", "HybridNetwork", "main","! create_blue_spike_nodes().");	
+	if (! connect_to_mov_obj_hand())
+		return print_message(ERROR_MSG ,"HybridNetwork", "HybridNetwork", "main","! connect_to_mov_obj_hand().");	
+
+	if (! connect_to_trial_hand())
+		return print_message(ERROR_MSG ,"HybridNetwork", "HybridNetwork", "main","! connect_to_mov_obj_hand().");	
 
 	create_gui();
 	gtk_main();

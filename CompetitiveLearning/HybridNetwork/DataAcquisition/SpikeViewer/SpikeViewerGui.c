@@ -20,9 +20,7 @@ static GtkWidget *btn_load_spike_thresholds_file;
 
 static GtkWidget *btn_select_folder_to_save_spike_thresholds_file;
 static GtkWidget *btn_save_spike_thresholds_file; 
-static GtkWidget *btn_select_folder_to_record_data;
-static GtkWidget *btn_create_recording_folder;
-static GtkWidget *btn_record_data;
+
 
 static GtkWidget *entryThreshold;
 
@@ -54,9 +52,6 @@ static int blue_spike_time_stamp_buff_read_idx[MAX_NUM_OF_MWA][MAX_NUM_OF_CHAN_P
 
 static bool filter_on = FALSE;
 
-static bool recording = FALSE;
-static unsigned int recording_number = 0;
-
 static bool set_directory_btn_select_directory_to_load(void);
 static void set_directory_btn_select_directory_to_save(void);
 
@@ -64,7 +59,7 @@ static void clear_spike_screen(void);
 static void clear_raw_data_screen(void);
 
 static gboolean timeout_callback(gpointer user_data);
-static gboolean recording_timeout_callback(gpointer user_data) ;
+
 
 static gboolean combo_mwa_func (GtkDatabox * box);
 static gboolean combo_chan_func (GtkDatabox * box);
@@ -78,9 +73,7 @@ static gboolean clear_screen_but_func (GtkDatabox * box);
 
 static gboolean print_spike_end_buff_button_func (GtkDatabox * box);
 
-static gboolean create_recording_folder_button_func (GtkDatabox * box);
 
-static gboolean record_data_button_func (GtkDatabox * box);
 
 
 
@@ -210,24 +203,6 @@ bool create_spike_viewer_gui(GtkWidget *tabs)
 	gtk_box_pack_start (GTK_BOX (hbox), btn_filter_on_off, TRUE, TRUE, 0);	
 	
 
-  	hbox = gtk_hbox_new(FALSE, 0);
-  	gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 3);
-
-	hbox = gtk_hbox_new(FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE,FALSE,0);	
-
-  	btn_select_folder_to_record_data = gtk_file_chooser_button_new ("Select Directory", GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
-        gtk_box_pack_start(GTK_BOX(hbox), btn_select_folder_to_record_data, FALSE,FALSE,0);
-
-	btn_create_recording_folder = gtk_button_new_with_label("Create Folder");
-	gtk_box_pack_start (GTK_BOX (hbox), btn_create_recording_folder, TRUE, TRUE, 0);
-
-	hbox = gtk_hbox_new(FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE,FALSE,0);	
-
-	btn_record_data = gtk_button_new_with_label("Record");
-        gtk_box_pack_start(GTK_BOX(hbox),btn_record_data, TRUE,TRUE, 0);
-  	
 	// Raw Data Plot 
 
 	X_raw = g_new0 (float, NUM_OF_RAW_SAMPLE_TO_DISPLAY);
@@ -306,10 +281,6 @@ bool create_spike_viewer_gui(GtkWidget *tabs)
 
 	g_signal_connect(G_OBJECT(btn_print_spike_end_buff), "clicked", G_CALLBACK(print_spike_end_buff_button_func), NULL);	
 
-	g_signal_connect(G_OBJECT(btn_create_recording_folder), "clicked", G_CALLBACK(create_recording_folder_button_func), NULL);	
-
-	g_signal_connect(G_OBJECT(btn_record_data), "clicked", G_CALLBACK(record_data_button_func), NULL);	
-
 
 	spike_viewer_initialize_data_read_write_handlers();
 
@@ -323,7 +294,7 @@ bool create_spike_viewer_gui(GtkWidget *tabs)
 
 
 	g_timeout_add(50, timeout_callback, box_signal);
-	g_timeout_add(50, recording_timeout_callback, box_signal);
+
 
 	return TRUE;
 
@@ -653,62 +624,6 @@ static gboolean print_spike_end_buff_button_func (GtkDatabox * box)
 	return TRUE;	
 }
 
-static gboolean create_recording_folder_button_func (GtkDatabox * box)
-{
-	char *path_temp = NULL, *path = NULL;
-	path_temp = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (btn_select_folder_to_record_data));
-	path = &path_temp[7];   // since     uri returns file:///home/....	
-		
-	if ((*create_main_directory[MAX_NUMBER_OF_RECORDING_DATA_FORMAT_VER-1])(1, path))		// record in last format version
-	{
-		
-	}
-	else
-		print_message(ERROR_MSG ,"SpikeViewer", "Gui", "create_recording_folder_button_func", " *create_main_directory().");
-	return TRUE;
-}
-
-static gboolean record_data_button_func (GtkDatabox * box)
-{
-	char *path_temp, *path; 
-	path_temp = NULL; path = NULL;
-	if (recording)
-	{
-		if (! (*fclose_all_data_files[MAX_NUMBER_OF_RECORDING_DATA_FORMAT_VER-1])(3, &(rt_tasks_data->current_system_time), recording_data, sorted_spikes))	
-		{
-			print_message(ERROR_MSG ,"SpikeViewer", "Gui", "timeout_callback", " *fclose_all_data_file().");		
-			exit(1);
-		}
-		recording = FALSE;	
-
-		gtk_button_set_label (GTK_BUTTON(btn_record_data),"Record");
-	}
-	else
-	{
-		path_temp = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (btn_select_folder_to_record_data));
-		path = &path_temp[7];   // since     uri returns file:///home/....	
-		if (!(*create_data_directory[MAX_NUMBER_OF_RECORDING_DATA_FORMAT_VER-1])(5, path, &(rt_tasks_data->current_system_time), recording_number, recording_data, sorted_spikes))	
-		{
-			print_message(ERROR_MSG ,"SpikeViewer", "Gui", "timeout_callback", " *create_data_directory().");		
-			exit(1);
-		}
-		recording = TRUE;	
-		recording_number++;
-		gtk_button_set_label (GTK_BUTTON(btn_record_data),"Stop");
-	}
-	return TRUE;
-}
 
 
-static gboolean recording_timeout_callback(gpointer user_data) 
-{
-	if (recording)
-	{
-		if (!(*write_to_data_files[MAX_NUMBER_OF_RECORDING_DATA_FORMAT_VER-1])(0))	
-		{
-			print_message(ERROR_MSG ,"SpikeViewer", "Gui", "recording_timeout_callback", " *write_to_data_files().");		
-			exit(1);
-		}	
-	}
-	return TRUE;
-}
+

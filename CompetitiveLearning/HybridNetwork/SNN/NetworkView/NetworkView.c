@@ -882,7 +882,7 @@ bool create_network_view_gui(GtkWidget *tabs)
 	combo_neuron_dynamics = allocate_neuron_dynamics_combo(hbox, combo_neuron_dynamics);
 
 /*	if(!update_texts_of_combos_when_add_remove(combos_select_neuron, ->in_silico_network))  // it is put here since main() adds neurons to the layers previously
-		return print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "create_network_view_gui(", "! update_texts_of_combos_when_add_remove().");	
+		return print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "create_network_view_gui(", "! update_texts_of_combos_when_add_remove().");	
 */
    	hbox = gtk_hbox_new(FALSE, 0);
         gtk_box_pack_start(GTK_BOX(vbox),hbox, FALSE,FALSE,0);
@@ -1092,9 +1092,9 @@ static void add_neurons_to_layer_button_func(void)
 	randomize_params = 0;
 
 	if (!add_iz_neurons_to_layer(in_silico_network, num_of_neuron, layer, a, b, c, d, k, C, v_resting, v_threshold, v_peak, inhibitory, E_excitatory, E_inhibitory, tau_excitatory, tau_inhibitory, randomize_params))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "add_neurons_to_layer_button_func", "! add_iz_neurons_to_layer().");	
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "add_neurons_to_layer_button_func", "! add_iz_neurons_to_layer().");	
 	if(!update_texts_of_combos_when_add_remove(combos_select_neuron, in_silico_network))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "add_neurons_to_layer_button_func", "! update_texts_of_combos_when_add_remove().");	
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "add_neurons_to_layer_button_func", "! update_texts_of_combos_when_add_remove().");	
 	gtk_widget_set_sensitive(btn_submit_parker_sochacki_params, TRUE);		
 	return;
 }
@@ -1172,7 +1172,7 @@ static void set_neuron_param_entries(int neuron_type)
 static void submit_parker_sochacki_params_button_func(void)
 {	
 	if (! parker_sochacki_set_order_tolerance(in_silico_network, (unsigned int)atof(gtk_entry_get_text(GTK_ENTRY(entry_parker_sochacki_max_order))), atof(gtk_entry_get_text(GTK_ENTRY(entry_parker_sochacki_err_tol)))))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_parker_sochacki_params_button_func", "! parker_sochacki_set_order_tolerance().");
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_parker_sochacki_params_button_func", "! parker_sochacki_set_order_tolerance().");
 	
 	gtk_widget_set_sensitive(btn_add_neurons_to_layer, FALSE);			
 	gtk_widget_set_sensitive(btn_submit_parker_sochacki_params, FALSE);	
@@ -1209,7 +1209,7 @@ static void connect_internal_layer_to_internal_layer_button_func(void)
 	bool inhibitory_plastic = (bool)atof(gtk_entry_get_text(GTK_ENTRY(entry_internal_neurons_inhibitory_plastic_synapse)));
 
 	if (! connect_layers(in_silico_network, this_layer, in_silico_network, target_layer, weight_excitatory_max, weight_excitatory_min, weight_inhibitory_max, weight_inhibitory_min, EPSP_delay_max, EPSP_delay_min, IPSP_delay_max, IPSP_delay_min, MAXIMUM_IN_SILICO_TO_IN_SILICO_AXONAL_DELAY, MINIMUM_IN_SILICO_TO_IN_SILICO_AXONAL_DELAY, excitatory_connection_probability, inhibitory_connection_probability, excitatory_plastic, inhibitory_plastic))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "connect_internal_layer_to_internal_layer_button_func", "! connect_network_layer_to_network_layer().");	
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "connect_internal_layer_to_internal_layer_button_func", "! connect_network_layer_to_network_layer().");	
 	gtk_widget_set_sensitive(btn_submit_stdp_and_eligibility, TRUE);	
 }
 
@@ -1231,7 +1231,7 @@ static void connect_external_layer_to_internal_layer_button_func(void)
 	bool inhibitory_plastic = (bool)atof(gtk_entry_get_text(GTK_ENTRY(entry_external_neurons_inhibitory_plastic_synapse)));
 
 	if (! connect_layers(blue_spike_network, this_layer, in_silico_network, target_layer, weight_excitatory_max, weight_excitatory_min, weight_inhibitory_max, weight_inhibitory_min, EPSP_delay_max, EPSP_delay_min, IPSP_delay_max, IPSP_delay_min, MAXIMUM_BLUE_SPIKE_TO_IN_SILICO_AXONAL_DELAY, MINIMUM_BLUE_SPIKE_TO_IN_SILICO_AXONAL_DELAY, excitatory_connection_probability, inhibitory_connection_probability, excitatory_plastic, inhibitory_plastic))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "connect_external_layer_to_internal_layer_button_func", "! connect_ext_network_layer_to_int_network_layer().");
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "connect_external_layer_to_internal_layer_button_func", "! connect_ext_network_layer_to_int_network_layer().");
 	gtk_widget_set_sensitive(btn_submit_stdp_and_eligibility, TRUE);			
 }
 
@@ -1249,16 +1249,16 @@ static void submit_stdp_and_eligibility_button_func(void)
 	double depol_eligibility_max = 0;
 
 	if (! create_ps_pre_post_stdp_for_neuron_group(in_silico_network, LAYER_BASE_SERVO_EXTENSOR_SPINY, 0, STDP_pre_post_change_min, STDP_pre_post_change_max, STDP_pre_post_tau_min, STDP_pre_post_tau_max))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_stdp_and_eligibility_button_func", "! create_ps_stdp_for_neuron_group().");	
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_stdp_and_eligibility_button_func", "! create_ps_stdp_for_neuron_group().");	
 
 	if (! create_ps_eligibility_for_neuron_group(in_silico_network, LAYER_BASE_SERVO_EXTENSOR_SPINY, 0, eligibility_tau_min, eligibility_tau_max, max_eligibility_min, max_eligibility_max, depol_eligibility_min, depol_eligibility_max))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_stdp_and_eligibility_button_func", "! create_ps_eligibility_for_neuron_group().");	
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_stdp_and_eligibility_button_func", "! create_ps_eligibility_for_neuron_group().");	
 
 	if (! create_ps_pre_post_stdp_for_neuron_group(in_silico_network, LAYER_BASE_SERVO_FLEXOR_SPINY, 0, STDP_pre_post_change_min, STDP_pre_post_change_max, STDP_pre_post_tau_min, STDP_pre_post_tau_max))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_stdp_and_eligibility_button_func", "! create_ps_stdp_for_neuron_group().");	
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_stdp_and_eligibility_button_func", "! create_ps_stdp_for_neuron_group().");	
 
 	if (! create_ps_eligibility_for_neuron_group(in_silico_network, LAYER_BASE_SERVO_FLEXOR_SPINY, 0, eligibility_tau_min, eligibility_tau_max, max_eligibility_min, max_eligibility_max, depol_eligibility_min, depol_eligibility_max))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_stdp_and_eligibility_button_func", "! create_ps_eligibility_for_neuron_group().");	
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_stdp_and_eligibility_button_func", "! create_ps_eligibility_for_neuron_group().");	
 
 	gtk_widget_set_sensitive(btn_submit_stdp_and_eligibility, FALSE);	
 	gtk_widget_set_sensitive(btn_submit_learning_rate, TRUE);	
@@ -1268,7 +1268,7 @@ static void submit_stdp_and_eligibility_button_func(void)
 static void combos_select_neuron_func(GtkWidget *changed_combo)
 {
 	if(!update_texts_of_combos_when_change(combos_select_neuron, in_silico_network, changed_combo))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "combos_select_neuron_func", "!update_texts_of_combos_when_change().");
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "combos_select_neuron_func", "!update_texts_of_combos_when_change().");
 }
 
 static void submit_synaptic_weight_for_neuron_button_func(void)
@@ -1277,12 +1277,12 @@ static void submit_synaptic_weight_for_neuron_button_func(void)
 	unsigned int layer_num, nrn_grp_num, nrn_num;
 	double lower_limit, upper_limit;
 	if (! layer_neuron_group_neuron_get_selected(combos_select_neuron, &layer_num, &nrn_grp_num, &nrn_num))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_synaptic_weight_for_neuron_button_func", "! layer_neuron_group_neuron_get_selected().");
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_synaptic_weight_for_neuron_button_func", "! layer_neuron_group_neuron_get_selected().");
 	neuron = get_neuron_address(in_silico_network, layer_num, nrn_grp_num, nrn_num);					
 	lower_limit = atof(gtk_entry_get_text(GTK_ENTRY(entry_weight_lower_limit)));
 	upper_limit = atof(gtk_entry_get_text(GTK_ENTRY(entry_weight_upper_limit)));
 	if (! set_neuron_synaptic_weights(neuron, lower_limit, upper_limit))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_synaptic_weight_for_neuron_button_func", "! set_neuron_synaptic_weights().");
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_synaptic_weight_for_neuron_button_func", "! set_neuron_synaptic_weights().");
 }
 
 static void submit_excitatory_synaptic_weight_for_neuron_button_func(void)
@@ -1291,12 +1291,12 @@ static void submit_excitatory_synaptic_weight_for_neuron_button_func(void)
 	unsigned int layer_num, nrn_grp_num, nrn_num;
 	double lower_limit, upper_limit;
 	if (! layer_neuron_group_neuron_get_selected(combos_select_neuron, &layer_num, &nrn_grp_num, &nrn_num))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_excitatory_synaptic_weight_for_neuron_button_func", "! layer_neuron_group_neuron_get_selected().");
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_excitatory_synaptic_weight_for_neuron_button_func", "! layer_neuron_group_neuron_get_selected().");
 	neuron = get_neuron_address(in_silico_network, layer_num, nrn_grp_num, nrn_num);					
 	lower_limit = atof(gtk_entry_get_text(GTK_ENTRY(entry_weight_lower_limit)));
 	upper_limit = atof(gtk_entry_get_text(GTK_ENTRY(entry_weight_upper_limit)));
 	if (! set_neuron_excitatory_synaptic_weights(neuron, lower_limit, upper_limit))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_excitatory_synaptic_weight_for_neuron_button_func", "! set_neuron_excitatory_synaptic_weights().");
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_excitatory_synaptic_weight_for_neuron_button_func", "! set_neuron_excitatory_synaptic_weights().");
 }
 
 static void submit_new_stdp_and_eligibility_for_neuron_button_func(void)
@@ -1304,7 +1304,7 @@ static void submit_new_stdp_and_eligibility_for_neuron_button_func(void)
 	Neuron *neuron;
 	unsigned int layer_num, nrn_grp_num, nrn_num;
 	if (! layer_neuron_group_neuron_get_selected(combos_select_neuron, &layer_num, &nrn_grp_num, &nrn_num))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_new_stdp_and_eligibility_for_neuron_button_func", "! layer_neuron_group_neuron_get_selected().");
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_new_stdp_and_eligibility_for_neuron_button_func", "! layer_neuron_group_neuron_get_selected().");
 	neuron = get_neuron_address(in_silico_network, layer_num, nrn_grp_num, nrn_num);		
 	double STDP_pre_post_change_min = atof(gtk_entry_get_text(GTK_ENTRY(entry_STDP_pre_post_change_min)));
 	double STDP_pre_post_change_max = atof(gtk_entry_get_text(GTK_ENTRY(entry_STDP_pre_post_change_max)));
@@ -1319,9 +1319,9 @@ static void submit_new_stdp_and_eligibility_for_neuron_button_func(void)
 	double depol_eligibility_max = 0;
 
 	if (! submit_new_ps_eligibility_vals_for_neuron(neuron, eligibility_tau_min, eligibility_tau_max, max_eligibility_min, max_eligibility_max, depol_eligibility_min, depol_eligibility_max))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_new_stdp_and_eligibility_for_neuron_button_func", "! submit_new_ps_eligibility_vals_for_neuron().");	
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_new_stdp_and_eligibility_for_neuron_button_func", "! submit_new_ps_eligibility_vals_for_neuron().");	
 	if (! submit_new_ps_pre_post_stdp_vals_for_neuron(neuron, STDP_pre_post_change_min, STDP_pre_post_change_max, STDP_pre_post_tau_min, STDP_pre_post_tau_max))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_new_stdp_and_eligibility_for_neuron_button_func", "! submit_new_ps_pre_post_stdp_vals_for_neuron().");	
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_new_stdp_and_eligibility_for_neuron_button_func", "! submit_new_ps_pre_post_stdp_vals_for_neuron().");	
 
 	gtk_widget_set_sensitive(btn_ready_for_simulation, TRUE);	
 	return;
@@ -1334,13 +1334,13 @@ static void submit_synaptic_weight_for_synapse_button_func(void)
 	double lower_limit, upper_limit;
 
 	if (! layer_neuron_group_neuron_synapse_get_selected(combos_select_synapse, &layer_num, &nrn_grp_num, &nrn_num, &syn_num))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_synaptic_weight_for_synapse_button_func", "! layer_neuron_group_neuron_synapse_get_selected().");	
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_synaptic_weight_for_synapse_button_func", "! layer_neuron_group_neuron_synapse_get_selected().");	
 
 	neuron = get_neuron_address(in_silico_network, layer_num, nrn_grp_num, nrn_num);					
 	lower_limit = atof(gtk_entry_get_text(GTK_ENTRY(entry_weight_lower_limit)));
 	upper_limit = atof(gtk_entry_get_text(GTK_ENTRY(entry_weight_upper_limit)));
 	if (! set_neuron_synapse_synaptic_weight(neuron, lower_limit, upper_limit, syn_num))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_synaptic_weight_for_synapse_button_func", "! set_neuron_synapse_synaptic_weight().");
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_synaptic_weight_for_synapse_button_func", "! set_neuron_synapse_synaptic_weight().");
 
 }
 
@@ -1349,7 +1349,7 @@ static void submit_new_stdp_and_eligibility_for_synapse_button_func(void)
 	Neuron *neuron;
 	unsigned int layer_num, nrn_grp_num, nrn_num, syn_num;
 	if (! layer_neuron_group_neuron_synapse_get_selected(combos_select_synapse, &layer_num, &nrn_grp_num, &nrn_num, &syn_num))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_new_stdp_and_eligibility_for_synapse_button_func", "! layer_neuron_group_neuron_synapse_get_selected().");	
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_new_stdp_and_eligibility_for_synapse_button_func", "! layer_neuron_group_neuron_synapse_get_selected().");	
 
 	neuron = get_neuron_address(in_silico_network, layer_num, nrn_grp_num, nrn_num);		
 	double STDP_pre_post_change_min = atof(gtk_entry_get_text(GTK_ENTRY(entry_STDP_pre_post_change_min)));
@@ -1365,9 +1365,9 @@ static void submit_new_stdp_and_eligibility_for_synapse_button_func(void)
 	double depol_eligibility_max = 0;
 
 	if (! submit_new_ps_eligibility_vals_for_synapse(neuron, eligibility_tau_min, eligibility_tau_max, syn_num, max_eligibility_min, max_eligibility_max, depol_eligibility_min, depol_eligibility_max))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_new_stdp_and_eligibility_for_neuron_button_func", "! submit_new_ps_eligibility_vals_for_neuron().");
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_new_stdp_and_eligibility_for_neuron_button_func", "! submit_new_ps_eligibility_vals_for_neuron().");
 	if (! submit_new_ps_pre_post_stdp_vals_for_synapse(neuron, STDP_pre_post_change_min, STDP_pre_post_change_max, STDP_pre_post_tau_min, STDP_pre_post_tau_max, syn_num))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_new_stdp_and_eligibility_for_neuron_button_func", "! submit_new_ps_stdp_vals_for_neuron().");	
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_new_stdp_and_eligibility_for_neuron_button_func", "! submit_new_ps_stdp_vals_for_neuron().");	
 	
 	gtk_widget_set_sensitive(btn_ready_for_simulation, TRUE);	
 	return;	
@@ -1388,21 +1388,20 @@ static void ready_for_simulation_button_func(void)
 	neuron_dynamics_limited_buffer = allocate_neuron_dynamics_buffer_limited(in_silico_network, neuron_dynamics_limited_buffer, 3000000000/PARKER_SOCHACKI_INTEGRATION_STEP_SIZE, NUM_OF_NEURON_DYNAMICS_GRAPHS);  // 3 second buffer for 1 second graph refresh rate. 
 	stdp_limited_buffer = allocate_stdp_buffer_limited(in_silico_network, stdp_limited_buffer, 3000000000/PARKER_SOCHACKI_INTEGRATION_STEP_SIZE, NUM_OF_STDP_GRAPHS);  // 3 second buffer for 1 second graph refresh rate. 
 	eligibility_limited_buffer = allocate_eligibility_buffer_limited(in_silico_network, eligibility_limited_buffer, 3000000000/PARKER_SOCHACKI_INTEGRATION_STEP_SIZE, NUM_OF_ELIGIBILITY_GRAPHS);  // 3 second buffer for 1 second graph refresh rate. 
-	blue_spike_spike_data_for_graph = g_new0(SpikeData*, 1);
-	blue_spike_spike_data_for_graph[0] = allocate_spike_data(blue_spike_spike_data_for_graph[0], get_num_of_neurons_in_network(blue_spike_network)*3*500 ); // 3 seconds buffer assuming a neuron firing rate cannot be more than 500 Hz 
 	for (i = 0; i < SNN_SIM_NUM_OF_DEDICATED_CPUS; i ++)
-		in_silico_spike_data_for_graph[i] = allocate_spike_data(in_silico_spike_data_for_graph[i], get_num_of_neurons_in_network(in_silico_network)*3*500 ); // 3 seconds buffer assuming a neuron firing rate cannot be more than 500 Hz 
-	for (i = 0; i < SNN_SIM_NUM_OF_DEDICATED_CPUS; i ++)
-		in_silico_spike_data_for_recording[i] = allocate_spike_data(in_silico_spike_data_for_recording[i], get_num_of_neurons_in_network(in_silico_network)*3*500 ); // 3 seconds buffer assuming a neuron firing rate cannot be more than 500 Hz 
+	{
+		in_silico_spike_data_for_graph[i] = allocate_spike_data(in_silico_spike_data_for_graph[i], (get_num_of_neurons_in_network(in_silico_network)*3*1000) /SNN_SIM_NUM_OF_DEDICATED_CPUS); // 3 seconds buffer assuming a neuron firing rate cannot be more than 1000 Hz 
+		in_silico_spike_data_for_recording[i] = allocate_spike_data(in_silico_spike_data_for_recording[i], (get_num_of_neurons_in_network(in_silico_network)*3*1000)/SNN_SIM_NUM_OF_DEDICATED_CPUS ); // 3 seconds buffer assuming a neuron firing rate cannot be more than 1000 Hz 
+	}
 
 	if(!update_texts_of_synapse_combos_when_add_remove(combos_select_synapse, in_silico_network))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "ready_for_simulation_button_func", "! update_texts_of_combos_when_add_remove().");	
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "ready_for_simulation_button_func", "! update_texts_of_combos_when_add_remove().");	
 
 	if(!update_texts_of_combos_when_add_remove(combos_select_neuron, in_silico_network))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "add_neurons_to_layer_button_func", "! update_texts_of_combos_when_add_remove().");	
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "add_neurons_to_layer_button_func", "! update_texts_of_combos_when_add_remove().");	
 
 	if (!buffer_view_handler(static_tabs))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "ready_for_simulation_button_func", "! create_buffers_view_gui().");	
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "ready_for_simulation_button_func", "! create_buffers_view_gui().");	
 
 	normalize_plastic_synaptic_weights(in_silico_network, total_synaptic_weights);
 
@@ -1427,14 +1426,14 @@ static void ready_for_simulation_button_func(void)
 static void combos_select_synapse_func(GtkWidget *changed_combo)
 {
 	if(!update_texts_of_synapse_combos_when_change(combos_select_synapse, in_silico_network, changed_combo))
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "combos_select_synapse_func", "! update_texts_of_combos_when_change().");			
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "combos_select_synapse_func", "! update_texts_of_combos_when_change().");			
 }
 
 static void submit_learning_rate_button_func (void)
 {
 	double learning_rate = atof(gtk_entry_get_text(GTK_ENTRY(entry_learning_rate)));
 	if (learning_rate < 0)
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_learning_rate_button_func", "learning_rate <= 0.");
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_learning_rate_button_func", "learning_rate <= 0.");
 
 	reward_data.learning_rate = learning_rate;
 
@@ -1450,13 +1449,13 @@ static void create_recording_folder_button_func (void)
 	path = &path_temp[7];   // since     uri returns file:///home/....	
 	path_len = strlen(path_temp);
 	if (strcmp(&(path_temp[path_len-8]),"EXP_DATA") == 0)
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "Gui", "create_recording_folder_button_func", "Selected folder is /EXP_DATA main folder. Select a folder inside this folder.");				
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "Gui", "create_recording_folder_button_func", "Selected folder is /EXP_DATA main folder. Select a folder inside this folder.");				
 	if ((*create_main_directory[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(1, path))		// record in last format version
 	{
 		
 	}
 	else
-		print_message(ERROR_MSG ,"HybridNetRLBMI", "Gui", "create_recording_folder_button_func", " *create_main_directory().");			
+		print_message(ERROR_MSG ,"HybridNetwork", "Gui", "create_recording_folder_button_func", " *create_main_directory().");			
 }
 
 
@@ -1466,16 +1465,16 @@ static void set_directory_btn_select_directory_to_save(void)
 	FILE *fp = NULL;
        	if ((fp = fopen("./SNN/path_initial_directory", "r")) == NULL)  
        	{ 
-		print_message(ERROR_MSG ,"HybridNetRLBMI", "Gui", "set_directory_btn_select_directory_to_save", "Couldn't find file: ./path_initial_directory.");
-		print_message(ERROR_MSG ,"HybridNetRLBMI", "Gui", "set_directory_btn_select_directory_to_save", "/home is loaded as initial direcoty to create data folder.");
+		print_message(ERROR_MSG ,"HybridNetwork", "Gui", "set_directory_btn_select_directory_to_save", "Couldn't find file: ./path_initial_directory.");
+		print_message(ERROR_MSG ,"HybridNetwork", "Gui", "set_directory_btn_select_directory_to_save", "/home is loaded as initial direcoty to create data folder.");
 		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (btn_select_directory_to_save),"/home");
        	}
        	else
        	{
 		if (fgets(line, sizeof line, fp ) == NULL) 
 		{ 
-			print_message(ERROR_MSG ,"HybridNetRLBMI", "Gui", "set_directory_btn_select_directory_to_save", "Couldn' t read ./path_initial_directory.");
-			print_message(ERROR_MSG ,"HybridNetRLBMI", "Gui", "set_directory_btn_select_directory_to_save", "/home is loaded as initial direcoty to create data folder.");
+			print_message(ERROR_MSG ,"HybridNetwork", "Gui", "set_directory_btn_select_directory_to_save", "Couldn' t read ./path_initial_directory.");
+			print_message(ERROR_MSG ,"HybridNetwork", "Gui", "set_directory_btn_select_directory_to_save", "/home is loaded as initial direcoty to create data folder.");
 			gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (btn_select_directory_to_save),"/home");
 		}
 		else
@@ -1506,7 +1505,7 @@ static gboolean timeout_callback(gpointer user_data)
 				recording_number = msg_item.additional_data.recording_number;
 				if (!(*create_data_directory[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(3, path, rt_tasks_data->current_system_time, recording_number))	
 				{
-					print_message(ERROR_MSG ,"HybridNetRLBMI", "Gui", "timeout_callback", " *create_data_directory().");		
+					print_message(ERROR_MSG ,"HybridNetwork", "Gui", "timeout_callback", " *create_data_directory().");		
 					exit(1);
 				}
 				recording = TRUE;	
@@ -1514,7 +1513,7 @@ static gboolean timeout_callback(gpointer user_data)
 			case NEURAL_NET_2_GUI_MSG_STOP_RECORDING:
 				if (! (*fclose_all_data_files[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(1, rt_tasks_data->current_system_time))	
 				{
-					print_message(ERROR_MSG ,"HybridNetRLBMI", "Gui", "timeout_callback", " *fclose_all_data_file().");		
+					print_message(ERROR_MSG ,"HybridNetwork", "Gui", "timeout_callback", " *fclose_all_data_file().");		
 					exit(1);
 				}
 				recording = FALSE;		
@@ -1527,12 +1526,12 @@ static gboolean timeout_callback(gpointer user_data)
 				recording_number = msg_item.additional_data.recording_number;
 				if (! (*fclose_all_data_files[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(1, rt_tasks_data->current_system_time))	
 				{
-					print_message(ERROR_MSG ,"HybridNetRLBMI", "Gui", "timeout_callback", "! *fclose_all_data_files().");
+					print_message(ERROR_MSG ,"HybridNetwork", "Gui", "timeout_callback", "! *fclose_all_data_files().");
 					exit(1);
 				}
 				if (! (*delete_data_directory[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(2, path, recording_number))
 				{
-					print_message(ERROR_MSG ,"HybridNetRLBMI", "Gui", "timeout_callback", " *delete_all_data_files().");
+					print_message(ERROR_MSG ,"HybridNetwork", "Gui", "timeout_callback", " *delete_all_data_files().");
 					exit(1);
 				}
 				recording = FALSE;
@@ -1541,19 +1540,23 @@ static gboolean timeout_callback(gpointer user_data)
 				update_synaptic_weight_history_of_network(in_silico_network);
 				break;
 			default:
-				return print_message(ERROR_MSG ,"HybridNetRLBMI", "Gui", "timeout_callback", "switch (msg_item.msg_type) - default");
+				return print_message(ERROR_MSG ,"HybridNetwork", "Gui", "timeout_callback", "switch (msg_item.msg_type) - default");
 		}
 	}
 	if (recording)
 	{
 		if (!(*write_to_data_files[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(0))	
 		{
-			print_message(ERROR_MSG ,"HybridNetRLBMI", "Gui", "timeout_callback", " *write_to_data_files().");		
+			print_message(ERROR_MSG ,"HybridNetwork", "Gui", "timeout_callback", " *write_to_data_files().");		
 			exit(1);
 		}	
 	}
 	else
 	{
+		for (i = 0; i < MAX_NUM_OF_DAQ_CARD; i++)
+		{
+			reset_spike_data_read_idx(blue_spike_spike_data_for_recording[i]);
+		}
 		for (i = 0; i < SNN_SIM_NUM_OF_DEDICATED_CPUS; i++)
 		{
 			reset_spike_data_read_idx(in_silico_spike_data_for_recording[i]);
@@ -1573,9 +1576,9 @@ static void load_data_button_func (void)
 
 	data_folder_num = (unsigned int)atof(gtk_entry_get_text(GTK_ENTRY(entry_load_data_folder_num)));
 			
-	if ((*load_data_directory[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(4, path, in_silico_network, blue_spike_network, data_folder_num))		// record in last format version
+	if ((*load_data_directory[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(2, path, data_folder_num))		// record in last format version
 	{
-		print_message(INFO_MSG ,"HybridNetRLBMI", "Gui", "load_data_button_func", "Successfully loaded data");	
+		print_message(INFO_MSG ,"HybridNetwork", "Gui", "load_data_button_func", "Successfully loaded data");	
 		gtk_widget_set_sensitive(btn_ready_for_simulation, TRUE);		
 		gtk_widget_set_sensitive(btn_submit_learning_rate, TRUE);
 		sprintf(temp, "%.6f", reward_data.learning_rate);	
@@ -1583,7 +1586,7 @@ static void load_data_button_func (void)
 	}
 	else
 	{
-		print_message(ERROR_MSG ,"HybridNetRLBMI", "Gui", "load_data_button_func", " *load_data_directory().");			
+		print_message(ERROR_MSG ,"HybridNetwork", "Gui", "load_data_button_func", " *load_data_directory().");			
 	}
 
 }
@@ -1593,19 +1596,19 @@ static void create_default_network_button_func(void)
 {
 
 	if (! add_neurons_for_in_silico_network()) {
-		print_message(ERROR_MSG ,"HybridNetRLBMI", "HybridNetRLBMI", "main", "! prepare_external_and_in_silico_network()."); return; }	
+		print_message(ERROR_MSG ,"HybridNetwork", "HybridNetwork", "main", "! prepare_external_and_in_silico_network()."); return; }	
 
 	if (! submit_parker_sochacki_integration_precision()) {
-		print_message(ERROR_MSG ,"HybridNetRLBMI", "HybridNetRLBMI", "main", "! submit_parker_sochacki_integration_precision().");return; }
+		print_message(ERROR_MSG ,"HybridNetwork", "HybridNetwork", "main", "! submit_parker_sochacki_integration_precision().");return; }
 
 	if (! set_output_layers()) {
-		print_message(ERROR_MSG ,"HybridNetRLBMI", "HybridNetRLBMI", "main", "! set_output_layers().");return; }
+		print_message(ERROR_MSG ,"HybridNetwork", "HybridNetwork", "main", "! set_output_layers().");return; }
 
 	if (! connect_external_to_in_silico_network()) {
-		print_message(ERROR_MSG ,"HybridNetRLBMI", "HybridNetRLBMI", "main", "! connect_external_to_in_silico_network().");return; }
+		print_message(ERROR_MSG ,"HybridNetwork", "HybridNetwork", "main", "! connect_external_to_in_silico_network().");return; }
 
 	if (! connect_medium_spiny_neurons()) {
-		print_message(ERROR_MSG ,"HybridNetRLBMI", "HybridNetRLBMI", "main", "! connect_medium_spiny_neurons().");return; }
+		print_message(ERROR_MSG ,"HybridNetwork", "HybridNetwork", "main", "! connect_medium_spiny_neurons().");return; }
 
 	gtk_widget_set_sensitive(btn_create_default_network, FALSE);	
 	gtk_widget_set_sensitive(btn_submit_stdp_and_eligibility, TRUE);	
@@ -1617,7 +1620,7 @@ static void submit_total_synaptic_weights_button_func (void)
 
 	double temp = atof(gtk_entry_get_text(GTK_ENTRY(entry_total_synaptic_weights)));
 	if (temp < 0)
-		return (void)print_message(ERROR_MSG ,"HybridNetRLBMI", "NetworkView", "submit_total_synaptic_weights_button_func", "total_synaptic_weights <= 0.");
+		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_total_synaptic_weights_button_func", "total_synaptic_weights <= 0.");
 
 	total_synaptic_weights = temp;
 

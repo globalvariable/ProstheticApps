@@ -199,14 +199,12 @@ int read_template_matching_data_v0(int num, ...)
 				if (local_template_matching_data[i][j][k].include_unit)
 				{
 					template_matching_data[i][j][k].include_unit = TRUE;	
-					sorted_spikes[i][j].included_units[k] = TRUE;	
 					nrn = get_neuron_address(blue_spike_network, i, j, k);	
 					nrn->include = TRUE;
 				}
 				else
 				{
 					template_matching_data[i][j][k].include_unit = FALSE;	
-					sorted_spikes[i][j].included_units[k] = FALSE;		
 					nrn = get_neuron_address(blue_spike_network, i, j, k);	
 					nrn->include = FALSE;		
 				}

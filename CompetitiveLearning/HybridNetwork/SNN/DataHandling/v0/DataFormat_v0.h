@@ -11,6 +11,10 @@
 #include <unistd.h>
 
 #include "../../SnnData.h"
+#include "../../AxonalDelayConfig.h"
+#include "../../../../NetworkConfig.h"
+#include "../../../DataAcquisition/BlueSpikeData.h"
+#include "../../../DataAcquisition/RecordingData.h"
 #include "../../../../../../BlueSpike/Library/Misc/Misc.h"
 #include "../../../../../../IzNeuronSimulators/Library/SpikeData/SpikeData.h"
 

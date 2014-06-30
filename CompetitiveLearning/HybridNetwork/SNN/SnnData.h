@@ -6,6 +6,7 @@
 
 #include "../HybridNetworkData.h"
 #include "../../TaskConfig.h"
+#include "../../InterProcessMsgConfig.h"
 #include "../../../../ExperimentHandlers/Library/Messages/TrialHand2NeuralNet.h"
 #include "../../../../ExperimentHandlers/Library/Messages/NeuralNet2TrialHand.h"
 #include "../../../../ExperimentHandlers/Library/Messages/MovObjHand2NeuralNet.h"
@@ -48,8 +49,8 @@ struct RewardData
 
 
 bool initialize_snn_data(void);
-
-
+bool connect_to_mov_obj_hand(void );
+bool connect_to_trial_hand(void );
 
 
 

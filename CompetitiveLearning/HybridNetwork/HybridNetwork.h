@@ -18,7 +18,7 @@
 #include "../../../BlueSpike/Library/Misc/Misc.h"
 #include "HybridNetworkRtTask.h"
 #include "SNN/SnnData.h"
-#include "DataAcquisition/BlueSpikeNodes.h"
+#include "DataAcquisition/BlueSpikeData.h"
 
 
 

@@ -928,14 +928,12 @@ static void include_unit_on_off_button_func(void)
 		{
 			nrn->include = FALSE;
 			template_matching_data[disp_mwa][disp_chan][disp_unit].include_unit = FALSE;
-			sorted_spikes[disp_mwa][disp_chan].included_units[disp_unit] = FALSE;
 			gtk_button_set_label (GTK_BUTTON(btn_include_unit_on_off),"Include Unit: OFF");
 		}
 		else
 		{
 			nrn->include = TRUE;
 			template_matching_data[disp_mwa][disp_chan][disp_unit].include_unit = TRUE;
-			sorted_spikes[disp_mwa][disp_chan].included_units[disp_unit] = TRUE;
 			gtk_button_set_label (GTK_BUTTON(btn_include_unit_on_off),"Include Unit: ON");
 		}
 	}

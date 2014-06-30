@@ -4,7 +4,9 @@
 #include <stdbool.h>
 #include "../../../../BlueSpike/System/TimeStamp/TimeStamp.h"
 #include "MwaConfig.h"
-#include "SortedSpikes.h"
+
+
+#define BLUESPIKE_SORTED_SPIKE_BUFF_SIZE 2000 // 1 seconds of buffer at worst scenario (if each channel spikes twice every millisecond )
 
 typedef struct __BlueSpikeTimeStampItem
 {
