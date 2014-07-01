@@ -90,10 +90,10 @@ static void *snn_rt_handler(void *args)
         rt_task_make_periodic(handler, rt_get_time() + period, period);
 
 
-	rt_sem_wait(sys_time_semaphore);
+	pthread_mutex_lock(&mutex_sys_time);
 	curr_time = rt_get_cpu_time_ns();	
 	current_snn_time =  (curr_time - rt_tasks_data->current_cpu_time) + rt_tasks_data->current_system_time;
-	rt_sem_signal(sys_time_semaphore);
+	pthread_mutex_unlock(&mutex_sys_time);
 
 	integration_start_time = (current_snn_time/PARKER_SOCHACKI_INTEGRATION_STEP_SIZE) *PARKER_SOCHACKI_INTEGRATION_STEP_SIZE;
 	prev_time = curr_time;
@@ -111,10 +111,10 @@ static void *snn_rt_handler(void *args)
 	{
         	rt_task_wait_period();
 
-		rt_sem_wait(sys_time_semaphore);
+		pthread_mutex_lock(&mutex_sys_time);
 		curr_time = rt_get_cpu_time_ns();
 		current_snn_time = (curr_time - rt_tasks_data->current_cpu_time) + rt_tasks_data->current_system_time;
-		rt_sem_signal(sys_time_semaphore);
+		pthread_mutex_unlock(&mutex_sys_time);
 
 		evaluate_and_save_jitter(rt_tasks_data, cpu_id, cpu_thread_id, cpu_thread_task_id, prev_time, curr_time);
 		prev_time = curr_time;

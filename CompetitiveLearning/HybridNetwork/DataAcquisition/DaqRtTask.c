@@ -57,10 +57,10 @@ static void *rt_daq_handler(void *args)
 	if (! config_daq_card(daq_num))  {
 		print_message(ERROR_MSG ,"PCIe6259", "RtTask", "rt_daq_handler", "! config_daq_cards()."); exit(1); }		
 
-	rt_sem_wait(sys_time_semaphore);
+	pthread_mutex_lock(&mutex_sys_time);
 	curr_time = rt_get_cpu_time_ns();	
 	current_daq_time =  (curr_time - rt_tasks_data->current_cpu_time) + rt_tasks_data->current_system_time;
-	rt_sem_signal(sys_time_semaphore);
+	pthread_mutex_unlock(&mutex_sys_time);
 
 	prev_time = curr_time;
 
@@ -69,10 +69,10 @@ static void *rt_daq_handler(void *args)
 		cb_val = 0;
 		cb_retval += rt_comedi_wait(&cb_val);
 
-		rt_sem_wait(sys_time_semaphore);
+		pthread_mutex_lock(&mutex_sys_time);
 		curr_time = rt_get_cpu_time_ns();
 		now = (curr_time - rt_tasks_data->current_cpu_time) + rt_tasks_data->current_system_time;
-		rt_sem_signal(sys_time_semaphore);
+		pthread_mutex_unlock(&mutex_sys_time);
 
 		evaluate_and_save_jitter(rt_tasks_data, BLUESPIKE_DAQ_CPU_ID, BLUESPIKE_DAQ_CPU_THREAD_ID, BLUESPIKE_DAQ_CPU_THREAD_TASK_ID+daq_num, prev_time, curr_time);
 
