@@ -28,13 +28,17 @@ bool start_acquisition(void)
 static void *rt_daq_handler(void *args)
 {
 	RT_TASK *handler;
-	unsigned int prev_time, curr_time;
-	TimeStamp current_daq_time, now;
+	RTIME curr_time, measured_time;
+	TimeStamp current_daq_time;
+        RTIME period;
 	unsigned int daq_num;
 	long int cb_val = 0, cb_retval = 0;
 	lsampl_t daq_data[MAX_NUM_OF_CHANNEL_PER_DAQ_CARD*NUM_OF_SCAN];
 
 	unsigned int daq_sync_cntr = 0;
+	unsigned int timer_cpuid, i;
+
+	timer_cpuid = (BLUESPIKE_PERIODIC_CPU_ID*MAX_NUM_OF_CPU_THREADS_PER_CPU)+BLUESPIKE_PERIODIC_CPU_THREAD_ID;
 
 	daq_num = *((unsigned int*)args);
 
@@ -57,38 +61,44 @@ static void *rt_daq_handler(void *args)
 	if (! config_daq_card(daq_num))  {
 		print_message(ERROR_MSG ,"PCIe6259", "RtTask", "rt_daq_handler", "! config_daq_cards()."); exit(1); }		
 
+	for (i = 0; i < 13; i++)	// wait for card configuration and interrupt generation stabilization.
+	{
+		rt_comedi_wait(&cb_val);
+		rt_comedi_command_data_read(ni6259_comedi_dev[daq_num], COMEDI_SUBDEVICE_AI, MAX_NUM_OF_CHANNEL_PER_DAQ_CARD*NUM_OF_SCAN, daq_data);
+	}
+
 	pthread_mutex_lock(&mutex_sys_time);
-	curr_time = rt_get_cpu_time_ns();	
-	current_daq_time =  (curr_time - rt_tasks_data->current_cpu_time) + rt_tasks_data->current_system_time;
+	curr_time = rt_get_time_cpuid(timer_cpuid);	
+	current_daq_time =  count2nano(curr_time - rt_tasks_data->current_cpu_time) + rt_tasks_data->current_system_time;
 	pthread_mutex_unlock(&mutex_sys_time);
 
-	prev_time = curr_time;
+	period = nano2count(BLUESPIKE_DAQ_PERIOD);
 
         while (daq_cards_on) 
 	{
 		cb_val = 0;
 		cb_retval += rt_comedi_wait(&cb_val);
 
+		measured_time = rt_get_time_cpuid(timer_cpuid);	
+
+		curr_time += period;	// expected
+
 		pthread_mutex_lock(&mutex_sys_time);
-		curr_time = rt_get_cpu_time_ns();
-		now = (curr_time - rt_tasks_data->current_cpu_time) + rt_tasks_data->current_system_time;
+		current_daq_time = count2nano(curr_time - rt_tasks_data->current_cpu_time) + rt_tasks_data->current_system_time;
 		pthread_mutex_unlock(&mutex_sys_time);
-
-		evaluate_and_save_jitter(rt_tasks_data, BLUESPIKE_DAQ_CPU_ID, BLUESPIKE_DAQ_CPU_THREAD_ID, BLUESPIKE_DAQ_CPU_THREAD_TASK_ID+daq_num, prev_time, curr_time);
-
-		prev_time = curr_time;
 
 
 		daq_sync_cntr++;
-		if (daq_sync_cntr == 4)		// her 4 rt_comedi_wait'te bir kere yüksek jitter oluyor. Muhtemelen onboard memory'nin sonuna geliyor ve kart daha hızlı interrupt gönderiyor. 
-		{	
-			daq_sync_cntr = 0;
-			current_daq_time = now;   // sync daq time according to cpu clock, cpu clock is the reference. 
-		}
-		else
+		if (daq_sync_cntr == 4)
 		{
-			current_daq_time += (SAMPLING_INTERVAL*NUM_OF_SCAN);		
-		}		
+			daq_sync_cntr = 0;
+			evaluate_and_save_jitter(rt_tasks_data, BLUESPIKE_DAQ_CPU_ID, BLUESPIKE_DAQ_CPU_THREAD_ID, BLUESPIKE_DAQ_CPU_THREAD_TASK_ID+daq_num, measured_time, curr_time);
+			curr_time = measured_time;  // sync
+		}
+
+//		printf ("%u\n", count2nano(curr_time-prev_time));
+
+
 
 		// routines
 		if (!(cb_val & COMEDI_CB_EOS))
@@ -110,7 +120,7 @@ static void *rt_daq_handler(void *args)
 
 		pthread_mutex_unlock(&(daq_mwa_map[daq_num].mutex)); 
 		// routines	
-		evaluate_and_save_period_run_time(rt_tasks_data, BLUESPIKE_DAQ_CPU_ID, BLUESPIKE_DAQ_CPU_THREAD_ID, BLUESPIKE_DAQ_CPU_THREAD_TASK_ID+daq_num, curr_time, rt_get_cpu_time_ns());		
+		evaluate_and_save_period_run_time(rt_tasks_data, BLUESPIKE_DAQ_CPU_ID, BLUESPIKE_DAQ_CPU_THREAD_ID, BLUESPIKE_DAQ_CPU_THREAD_TASK_ID+daq_num, measured_time, rt_get_time_cpuid(timer_cpuid));		
         }
 	close_daq_cards(daq_num);
 	rt_make_soft_real_time();

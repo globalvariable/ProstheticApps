@@ -44,8 +44,8 @@ void create_snn_rt_threads(void)
 static void *snn_rt_handler(void *args)
 {
 	RT_TASK *handler;
-        RTIME period;
-	unsigned int prev_time, curr_time;
+        RTIME period, expected;
+	RTIME prev_time, curr_time;
 	TimeStamp integration_start_time, integration_end_time, time_ns;
 	TimeStamp current_snn_time;
 	unsigned int task_num = *((unsigned int*)args);
@@ -61,7 +61,7 @@ static void *snn_rt_handler(void *args)
 	char task_name[10];
 	char task_num_name[4];
 
-	unsigned int i;
+	unsigned int i, timer_cpuid;
 
 	MovObjHand2NeuralNetMsg *msgs_mov_obj_hand_2_neural_net;
 	MovObjHand2NeuralNetMsgItem msg_item;
@@ -69,6 +69,8 @@ static void *snn_rt_handler(void *args)
 	int squential_reward_val = 0;
 	double reward;
 	double sensory_reward;
+
+	timer_cpuid = (BLUESPIKE_PERIODIC_CPU_ID*MAX_NUM_OF_CPU_THREADS_PER_CPU)+BLUESPIKE_PERIODIC_CPU_THREAD_ID;
 
 	cpu_id =  SNN_SIM_CPU_ID + task_num ;
 	cpu_thread_id = 0;
@@ -86,17 +88,17 @@ static void *snn_rt_handler(void *args)
 		return (void *)print_message(ERROR_MSG ,"HybridNetRLBMI", "HybridNetRLBMIRtTask", "hybrid_net_rl_bmi_internal_network_handler", "! write_rt_task_specs_to_rt_tasks_data()."); 
 
 
-        period = nano2count(SNN_SIM_PERIOD);
-        rt_task_make_periodic(handler, rt_get_time() + period, period);
-
-
 	pthread_mutex_lock(&mutex_sys_time);
-	curr_time = rt_get_cpu_time_ns();	
-	current_snn_time =  (curr_time - rt_tasks_data->current_cpu_time) + rt_tasks_data->current_system_time;
+	curr_time = rt_get_time_cpuid(timer_cpuid);	
+	current_snn_time =  count2nano(curr_time - rt_tasks_data->current_cpu_time) + rt_tasks_data->current_system_time;
 	pthread_mutex_unlock(&mutex_sys_time);
+        period = nano2count(SNN_SIM_PERIOD);
+        rt_task_make_periodic(handler, curr_time + period, period);
 
 	integration_start_time = (current_snn_time/PARKER_SOCHACKI_INTEGRATION_STEP_SIZE) *PARKER_SOCHACKI_INTEGRATION_STEP_SIZE;
-	prev_time = curr_time;
+
+	prev_time = curr_time ;
+	expected = curr_time + period;
 
 	reset_all_network_iz_neuron_dynamics (in_silico_network);	// clears neuron synaptic event buffers as well
 
@@ -112,11 +114,19 @@ static void *snn_rt_handler(void *args)
         	rt_task_wait_period();
 
 		pthread_mutex_lock(&mutex_sys_time);
-		curr_time = rt_get_cpu_time_ns();
-		current_snn_time = (curr_time - rt_tasks_data->current_cpu_time) + rt_tasks_data->current_system_time;
+		curr_time = rt_get_time_cpuid(timer_cpuid);	
+		current_snn_time =  count2nano(curr_time - rt_tasks_data->current_cpu_time) + rt_tasks_data->current_system_time;
 		pthread_mutex_unlock(&mutex_sys_time);
+		
+		if ((count2nano(curr_time - rt_tasks_data->current_cpu_time)) > 3*SNN_SIM_PERIOD)
+		{			
+			print_message(BUG_MSG ,"HybridNetRLBMI", "HybridNetRLBMI", "mov_obj_hand_2_neural_net_msgs_handler", "Invalid time, somethigng wrong with the calculation. curr_time might be behind rt_tasks_data->current_cpu_time");
+			break;	
+		}
+			
 
-		evaluate_and_save_jitter(rt_tasks_data, cpu_id, cpu_thread_id, cpu_thread_task_id, prev_time, curr_time);
+		expected += period;
+		evaluate_and_save_jitter(rt_tasks_data, cpu_id, cpu_thread_id, cpu_thread_task_id, curr_time, expected);
 		prev_time = curr_time;
 		// routines
 		while (get_next_mov_obj_hand_2_neural_net_msg_buffer_item(msgs_mov_obj_hand_2_neural_net, &msg_item))		
@@ -196,7 +206,7 @@ static void *snn_rt_handler(void *args)
 	
 		integration_start_time = integration_end_time;
 		// routines	
-		evaluate_and_save_period_run_time(rt_tasks_data, cpu_id, cpu_thread_id, cpu_thread_task_id, curr_time, rt_get_cpu_time_ns());		
+		evaluate_and_save_period_run_time(rt_tasks_data, cpu_id, cpu_thread_id, cpu_thread_task_id, curr_time, rt_get_time_cpuid(timer_cpuid));		
 	}
 EXIT:
 	rt_make_soft_real_time();
@@ -209,13 +219,17 @@ EXIT:
 static void *trial_hand_2_neural_net_msgs_handler(void *args)
 {
 	RT_TASK *handler;
-        RTIME period;
-	unsigned int prev_time, curr_time; 
+        RTIME period, expected;
+	RTIME prev_time, curr_time;
 
 	char str_trial_hand_msg[TRIAL_HAND_2_NEURAL_NET_MSG_STRING_LENGTH];
 
 	TrialHand2NeuralNetMsgItem msg_item;
 	NeuralNet2GuiMsgAdditional neural_net_2_gui_msg_add;
+
+	unsigned int timer_cpuid;
+
+	timer_cpuid = (BLUESPIKE_PERIODIC_CPU_ID*MAX_NUM_OF_CPU_THREADS_PER_CPU)+BLUESPIKE_PERIODIC_CPU_THREAD_ID;
 
 
 	if (! check_rt_task_specs_to_init(rt_tasks_data, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_CPU_ID, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_CPU_THREAD_ID, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_CPU_THREAD_TASK_ID, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_PERIOD, FALSE))  {
@@ -224,10 +238,16 @@ static void *trial_hand_2_neural_net_msgs_handler(void *args)
 		print_message(ERROR_MSG ,"HybridNetRLBMI", "HybridNetRLBMI", "trial_hand_2_neural_net_msgs_handler", "handler = rt_task_init_schmod()."); exit(1); }
 	if (! write_rt_task_specs_to_rt_tasks_data(rt_tasks_data, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_CPU_ID, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_CPU_THREAD_ID, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_CPU_THREAD_TASK_ID, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_PERIOD, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_POSITIVE_JITTER_THRES, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_NEGATIVE_JITTER_THRES, "TrialHand2NeuralNetMsgHandler", FALSE))  {
 		print_message(ERROR_MSG ,"HybridNetRLBMI", "HybridNetRLBMI", "trial_hand_2_neural_net_msgs_handler", "! write_rt_task_specs_to_rt_tasks_data()."); exit(1); }	
-        period = nano2count(TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_PERIOD);
 
-        rt_task_make_periodic(handler, rt_get_time() + period, period);
-	prev_time = rt_get_cpu_time_ns();	
+
+	curr_time = rt_get_time_cpuid(timer_cpuid);	
+        period = nano2count(TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_PERIOD);
+        rt_task_make_periodic(handler, curr_time + period, period);
+
+	prev_time = curr_time ;
+	expected = curr_time + period;
+
+
         mlockall(MCL_CURRENT | MCL_FUTURE);
 	rt_make_hard_real_time();		// do not forget this // check the task by nano /proc/rtai/scheduler (HD/SF) 
 
@@ -236,8 +256,10 @@ static void *trial_hand_2_neural_net_msgs_handler(void *args)
         while (1) 
 	{
         	rt_task_wait_period();
-		curr_time = rt_get_cpu_time_ns();
-		evaluate_and_save_jitter(rt_tasks_data, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_CPU_ID, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_CPU_THREAD_ID, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_CPU_THREAD_TASK_ID, prev_time, curr_time);
+		curr_time = rt_get_time_cpuid(timer_cpuid);	
+
+		expected += period;
+		evaluate_and_save_jitter(rt_tasks_data, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_CPU_ID, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_CPU_THREAD_ID, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_CPU_THREAD_TASK_ID, curr_time, expected);
 		prev_time = curr_time;
 		// routines
 
@@ -322,7 +344,7 @@ static void *trial_hand_2_neural_net_msgs_handler(void *args)
 			}
 		}
 		// routines	
-		evaluate_and_save_period_run_time(rt_tasks_data, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_CPU_ID, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_CPU_THREAD_ID, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_CPU_THREAD_TASK_ID, curr_time, rt_get_cpu_time_ns());		
+		evaluate_and_save_period_run_time(rt_tasks_data, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_CPU_ID, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_CPU_THREAD_ID, TRIAL_HAND_2_NEURAL_NET_MSGS_HANDLER_CPU_THREAD_TASK_ID, curr_time, rt_get_time_cpuid(timer_cpuid));		
         }
 	rt_make_soft_real_time();
         rt_task_delete(handler);

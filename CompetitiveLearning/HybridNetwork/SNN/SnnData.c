@@ -7,6 +7,8 @@ bool initialize_snn_data(void)
 	blue_spike_network = allocate_network(blue_spike_network);
 	in_silico_network = allocate_network(in_silico_network);
 
+	initialize_data_read_write_handlers();
+
 	msgs_trial_hand_2_neural_net = allocate_shm_server_trial_hand_2_neural_net_msg_buffer(msgs_trial_hand_2_neural_net);
 
 	msgs_neural_net_2_mov_obj_hand_multi_thread = g_new0(NeuralNet2MovObjHandMsg*, SNN_SIM_NUM_OF_DEDICATED_CPUS); 

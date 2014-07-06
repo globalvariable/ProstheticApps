@@ -16,7 +16,7 @@
 #include "../../../../IzNeuronSimulators/Library/STDPData/STDPData.h"
 #include "../../../../IzNeuronSimulators/Library/EligibilityData/EligibilityData.h"
 #include "../../../../IzNeuronSimulators/Library/SpikeData/SpikeData.h"
-
+#include "DataHandling/DataHandling.h"
 
 NeuralNet2GuiMsg				*msgs_neural_net_2_gui;
 
