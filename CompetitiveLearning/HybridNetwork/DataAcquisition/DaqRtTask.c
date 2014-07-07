@@ -31,6 +31,10 @@ static void *rt_daq_handler(void *args)
 	RTIME curr_time, measured_time;
 	TimeStamp current_daq_time;
         RTIME period;
+        RTIME sync_step, diff;
+        RTIME current_master_cpu_time;
+        RTIME expected;
+	TimeStamp current_system_time;
 	unsigned int daq_num;
 	long int cb_val = 0, cb_retval = 0;
 	lsampl_t daq_data[MAX_NUM_OF_CHANNEL_PER_DAQ_CARD*NUM_OF_SCAN];
@@ -73,30 +77,46 @@ static void *rt_daq_handler(void *args)
 	pthread_mutex_unlock(&mutex_sys_time);
 
 	period = nano2count(BLUESPIKE_DAQ_PERIOD);
+	sync_step = nano2count(5000);	// 5 microseconds
 
         while (daq_cards_on) 
 	{
 		cb_val = 0;
 		cb_retval += rt_comedi_wait(&cb_val);
 
-		measured_time = rt_get_time_cpuid(timer_cpuid);	
-
-		curr_time += period;	// expected
-
 		pthread_mutex_lock(&mutex_sys_time);
-		current_daq_time = count2nano(curr_time - rt_tasks_data->current_cpu_time) + rt_tasks_data->current_system_time;
+		measured_time = rt_get_time_cpuid(timer_cpuid);	
+		current_master_cpu_time = rt_tasks_data->current_cpu_time;
+		current_system_time = rt_tasks_data->current_system_time;
 		pthread_mutex_unlock(&mutex_sys_time);
 
+		curr_time += period;	// expected
+		expected = curr_time;
 
 		daq_sync_cntr++;
 		if (daq_sync_cntr == 4)
 		{
 			daq_sync_cntr = 0;
+
 			evaluate_and_save_jitter(rt_tasks_data, BLUESPIKE_DAQ_CPU_ID, BLUESPIKE_DAQ_CPU_THREAD_ID, BLUESPIKE_DAQ_CPU_THREAD_TASK_ID+daq_num, measured_time, curr_time);
-			curr_time = measured_time;  // sync
+
+			diff = curr_time-measured_time;
+			if (diff > sync_step)
+				curr_time -= sync_step;  // sync
+			else if ((-diff) > sync_step)
+				curr_time += sync_step;  // sync
+			else
+				curr_time = measured_time;
+			if (diff > 1000000) 
+				print_message(WARNING_MSG ,"HybridNetwork", "DaqRtTask", "rt_daq_handler", "cpu - daq_card clock mismatch is higher than 1 ms. diff > 1000000"); 	
+			if (diff < (-1000000)) 
+				print_message(WARNING_MSG ,"HybridNetwork", "DaqRtTask", "rt_daq_handler", "cpu - daq_card clock mismatch is higher than 1 ms. diff < (-1000000)"); 			
+
 		}
 
-//		printf ("%u\n", count2nano(curr_time-prev_time));
+
+
+		current_daq_time = count2nano(curr_time - current_master_cpu_time) + current_system_time;
 
 
 
