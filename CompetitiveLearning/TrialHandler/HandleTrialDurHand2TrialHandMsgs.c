@@ -29,7 +29,7 @@ bool handle_trial_dur_handler_to_trial_handler_msg(TimeStamp current_time)
 	while (get_next_trial_dur_hand_2_trial_hand_msg_buffer_item(msgs_trial_dur_hand_2_trial_hand, &msg_item))
 	{
 		get_trial_dur_hand_2_trial_hand_msg_type_string(msg_item.msg_type, str_trial_dur_msg);
-		print_message(INFO_MSG ,"TrialHandler", "HandleTrialDurHand2TrialHandMsgss", "handle_trial_dur_handler_to_trial_handler_msg", str_trial_dur_msg);
+//		print_message(INFO_MSG ,"TrialHandler", "HandleTrialDurHand2TrialHandMsgss", "handle_trial_dur_handler_to_trial_handler_msg", str_trial_dur_msg);
 		switch (msg_item.msg_type)
 		{
 			case TRIAL_DUR_HAND_2_TRIAL_HAND_MSG_TIMEOUT:	

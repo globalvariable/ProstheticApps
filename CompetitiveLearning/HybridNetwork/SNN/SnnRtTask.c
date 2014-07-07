@@ -134,7 +134,7 @@ static void *snn_rt_handler(void *args)
 			switch (msg_item.msg_type)
 			{
 				case MOV_OBJ_HAND_2_NEURAL_NET_MSG_REINFORCEMENT:
-					printf("rf %d\n", msg_item.additional_data.binary_reward_add.reward);
+//					printf("rf %d\n", msg_item.additional_data.binary_reward_add.reward);
 
 					if (msg_item.additional_data.binary_reward_add.reward > 0)  // LTP
 					{					
@@ -145,7 +145,7 @@ static void *snn_rt_handler(void *args)
 							sensory_reward = -1;
 						reward = reward_data.learning_rate *(1-reward_data.current_reward_prediction) * sensory_reward;  
 
-						printf("rew = %.3f\n", reward);
+//						printf("rew = %.3f\n", reward);
 
 						update_synaptic_weights_all_neurons_in_thread(all_neurons, num_of_all_neurons, task_num, SNN_SIM_NUM_OF_DEDICATED_CPUS, reward, total_synaptic_weights);
 
@@ -156,14 +156,14 @@ static void *snn_rt_handler(void *args)
 							squential_reward_val = 0;
 						sensory_reward = -1;
 						reward = reward_data.learning_rate *(1-reward_data.current_reward_prediction) * sensory_reward; 
-						printf("rew = %.3f\n", reward);
+//						printf("rew = %.3f\n", reward);
 						update_synaptic_weights_all_neurons_in_thread(all_neurons, num_of_all_neurons, task_num, SNN_SIM_NUM_OF_DEDICATED_CPUS, reward, total_synaptic_weights);
 					}		
 					else
 					{
 						sensory_reward = -1;
 						reward = reward_data.learning_rate *(1-reward_data.current_reward_prediction) * sensory_reward;  
-						printf("rew = %.3f\n", reward);
+//						printf("rew = %.3f\n", reward);
 						update_synaptic_weights_all_neurons_in_thread(all_neurons, num_of_all_neurons, task_num, SNN_SIM_NUM_OF_DEDICATED_CPUS, reward, total_synaptic_weights);
 					}	
 					break;	
@@ -266,7 +266,7 @@ static void *trial_hand_2_neural_net_msgs_handler(void *args)
 		while (get_next_trial_hand_2_neural_net_msg_buffer_item(msgs_trial_hand_2_neural_net, &msg_item))
 		{
 			get_trial_hand_2_neural_net_msg_type_string(msg_item.msg_type, str_trial_hand_msg);  
-			print_message(INFO_MSG ,"HybridNetRLBMI", "HybridNetRLBMI", "trial_hand_2_neural_net_msgs_handler", str_trial_hand_msg);
+//			print_message(INFO_MSG ,"HybridNetRLBMI", "HybridNetRLBMI", "trial_hand_2_neural_net_msgs_handler", str_trial_hand_msg);
 			switch (msg_item.msg_type)
 			{
 				case TRIAL_HAND_2_NEURAL_NET_MSG_TRIAL_STATUS_CHANGED:   // current system time might be different from the one TRIAL_HAND_2_NEURAL_NET_MSG_TRIAL_START. it can change during processing the message buffer but would not lead to problem.  TRIAL_HAND_2_NEURAL_NET_MSG_TRIAL_STATUS_CHANGED is used by the graphs.
@@ -275,7 +275,7 @@ static void *trial_hand_2_neural_net_msgs_handler(void *args)
 				case TRIAL_HAND_2_NEURAL_NET_MSG_TRIAL_START:   // not implemeted yet, for RL it will be required.
 					reward_data.current_reward_prediction = msg_item.additional_data.difficulty_reward_predict_add.reward_prediction;
 					
-					printf("msg = %.3f\t%.3f\n", reward_data.current_reward_prediction, reward_data.learning_rate);
+//					printf("msg = %.3f\t%.3f\n", reward_data.current_reward_prediction, reward_data.learning_rate);
 
 /*					current_sys_time = rt_tasks_data->current_system_time;
 					for (i = 0; i < num_of_neurons; i++)

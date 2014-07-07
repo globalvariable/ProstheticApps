@@ -8,7 +8,7 @@ bool handle_exp_envi_handler_to_exp_envi_dur_handler_msg(ExpEnviDurationStatus *
 	while (get_next_exp_envi_hand_2_exp_envi_dur_hand_msg_buffer_item(msgs_exp_envi_hand_2_exp_envi_dur_hand, &msg_item))
 	{
 		get_exp_envi_hand_2_exp_envi_dur_hand_msg_type_string(msg_item.msg_type, str_exp_envi_hand_msg);
-		print_message(INFO_MSG ,"ExpEnviHandler", "HandleExpEnviHand2ExpEnviDurHandMsgs", "handle_exp_envi_handler_to_exp_envi_dur_handler_msg", str_exp_envi_hand_msg);
+//		print_message(INFO_MSG ,"ExpEnviHandler", "HandleExpEnviHand2ExpEnviDurHandMsgs", "handle_exp_envi_handler_to_exp_envi_dur_handler_msg", str_exp_envi_hand_msg);
 		switch (msg_item.msg_type)
 		{
 			case EXP_ENVI_HAND_2_EXP_ENVI_DUR_HAND_MSG_START_INPUT_MIN_TIMER:	
@@ -293,7 +293,7 @@ bool handle_exp_envi_handler_to_exp_envi_dur_handler_msg(ExpEnviDurationStatus *
 								exp_envi_outputs_dur_status[VALVE_IDX_IN_EXP_ENVI_DATA] = EXP_ENVI_OUTPUTS_DUR_STATUS_TIMER_OFF;
 								break;			
 							case EXP_ENVI_OUTPUTS_DUR_STATUS_TIMER_OFF:
-								print_message(WARNING_MSG ,"ExpEnviHandler", "HandleExpEnviHand2ExpEnviDurHandMsgs", "handle_exp_envi_handler_to_exp_envi_dur_handler_msg", "Unnecessary Cancel Output Timer for VALVE_IDX_IN_EXP_ENVI_DATA");
+//								print_message(WARNING_MSG ,"ExpEnviHandler", "HandleExpEnviHand2ExpEnviDurHandMsgs", "handle_exp_envi_handler_to_exp_envi_dur_handler_msg", "Unnecessary Cancel Output Timer for VALVE_IDX_IN_EXP_ENVI_DATA");
 								break; // do nothing
 							default:
 								printf("VALVE_IDX_IN_EXP_ENVI_DATA\n");
@@ -308,7 +308,7 @@ bool handle_exp_envi_handler_to_exp_envi_dur_handler_msg(ExpEnviDurationStatus *
 								exp_envi_outputs_dur_status[BUZZER_IDX_IN_EXP_ENVI_DATA] = EXP_ENVI_OUTPUTS_DUR_STATUS_TIMER_OFF;
 								break;			
 							case EXP_ENVI_OUTPUTS_DUR_STATUS_TIMER_OFF:
-								print_message(WARNING_MSG ,"ExpEnviHandler", "HandleExpEnviHand2ExpEnviDurHandMsgs", "handle_exp_envi_handler_to_exp_envi_dur_handler_msg", "Unnecessary Cancel Output Timer for BUZZER_IDX_IN_EXP_ENVI_DATA");
+//								print_message(WARNING_MSG ,"ExpEnviHandler", "HandleExpEnviHand2ExpEnviDurHandMsgs", "handle_exp_envi_handler_to_exp_envi_dur_handler_msg", "Unnecessary Cancel Output Timer for BUZZER_IDX_IN_EXP_ENVI_DATA");
 								break; // do nothing
 							default:
 								printf("BUZZER_IDX_IN_EXP_ENVI_DATA\n");
@@ -322,7 +322,7 @@ bool handle_exp_envi_handler_to_exp_envi_dur_handler_msg(ExpEnviDurationStatus *
 								exp_envi_outputs_dur_status[LEFT_LED_IDX_IN_EXP_ENVI_DATA] = EXP_ENVI_OUTPUTS_DUR_STATUS_TIMER_OFF;
 								break;			
 							case EXP_ENVI_OUTPUTS_DUR_STATUS_TIMER_OFF:
-								print_message(WARNING_MSG ,"ExpEnviHandler", "HandleExpEnviHand2ExpEnviDurHandMsgs", "handle_exp_envi_handler_to_exp_envi_dur_handler_msg", "Unnecessary Cancel Output Timer for LEFT_LED_IDX_IN_EXP_ENVI_DATA");
+//								print_message(WARNING_MSG ,"ExpEnviHandler", "HandleExpEnviHand2ExpEnviDurHandMsgs", "handle_exp_envi_handler_to_exp_envi_dur_handler_msg", "Unnecessary Cancel Output Timer for LEFT_LED_IDX_IN_EXP_ENVI_DATA");
 								break; // do nothing
 							default:
 								printf("LEFT_LED_IDX_IN_EXP_ENVI_DATA\n");
@@ -337,7 +337,7 @@ bool handle_exp_envi_handler_to_exp_envi_dur_handler_msg(ExpEnviDurationStatus *
 								exp_envi_outputs_dur_status[RIGHT_LED_IDX_IN_EXP_ENVI_DATA] = EXP_ENVI_OUTPUTS_DUR_STATUS_TIMER_OFF;
 								break;			
 							case EXP_ENVI_OUTPUTS_DUR_STATUS_TIMER_OFF:
-								print_message(WARNING_MSG ,"ExpEnviHandler", "HandleExpEnviHand2ExpEnviDurHandMsgs", "handle_exp_envi_handler_to_exp_envi_dur_handler_msg", "Unnecessary Cancel Output Timer for RIGHT_LED_IDX_IN_EXP_ENVI_DATA");
+//								print_message(WARNING_MSG ,"ExpEnviHandler", "HandleExpEnviHand2ExpEnviDurHandMsgs", "handle_exp_envi_handler_to_exp_envi_dur_handler_msg", "Unnecessary Cancel Output Timer for RIGHT_LED_IDX_IN_EXP_ENVI_DATA");
 								break; // do nothing
 							default:
 								printf("RIGHT_LED_IDX_IN_EXP_ENVI_DATA\n");
@@ -352,7 +352,7 @@ bool handle_exp_envi_handler_to_exp_envi_dur_handler_msg(ExpEnviDurationStatus *
 								exp_envi_outputs_dur_status[GUIDE_LED_IDX_IN_EXP_ENVI_DATA] = EXP_ENVI_OUTPUTS_DUR_STATUS_TIMER_OFF;
 								break;			
 							case EXP_ENVI_OUTPUTS_DUR_STATUS_TIMER_OFF:
-								print_message(WARNING_MSG ,"ExpEnviHandler", "HandleExpEnviHand2ExpEnviDurHandMsgs", "handle_exp_envi_handler_to_exp_envi_dur_handler_msg", "Unnecessary Cancel Output Timer for GUIDE_LED_IDX_IN_EXP_ENVI_DATA");
+//								print_message(WARNING_MSG ,"ExpEnviHandler", "HandleExpEnviHand2ExpEnviDurHandMsgs", "handle_exp_envi_handler_to_exp_envi_dur_handler_msg", "Unnecessary Cancel Output Timer for GUIDE_LED_IDX_IN_EXP_ENVI_DATA");
 								break; // do nothing
 							default:
 								printf("GUIDE_LED_IDX_IN_EXP_ENVI_DATA\n");
@@ -367,7 +367,7 @@ bool handle_exp_envi_handler_to_exp_envi_dur_handler_msg(ExpEnviDurationStatus *
 								exp_envi_outputs_dur_status[LEVER_SOLENOID_IDX_IN_EXP_ENVI_DATA] = EXP_ENVI_OUTPUTS_DUR_STATUS_TIMER_OFF;
 								break;			
 							case EXP_ENVI_OUTPUTS_DUR_STATUS_TIMER_OFF:
-								print_message(WARNING_MSG ,"ExpEnviHandler", "HandleExpEnviHand2ExpEnviDurHandMsgs", "handle_exp_envi_handler_to_exp_envi_dur_handler_msg", "Unnecessary Cancel Output Timer for LEVER_SOLENOID_IN_EXP_ENVI_DATA");
+//								print_message(WARNING_MSG ,"ExpEnviHandler", "HandleExpEnviHand2ExpEnviDurHandMsgs", "handle_exp_envi_handler_to_exp_envi_dur_handler_msg", "Unnecessary Cancel Output Timer for LEVER_SOLENOID_IN_EXP_ENVI_DATA");
 								break; // do nothing
 							default:
 								get_exp_envi_dur_status_type_string(exp_envi_outputs_dur_status[LEVER_SOLENOID_IDX_IN_EXP_ENVI_DATA], str_exp_envi_dur_status);  
@@ -381,7 +381,7 @@ bool handle_exp_envi_handler_to_exp_envi_dur_handler_msg(ExpEnviDurationStatus *
 								exp_envi_outputs_dur_status[GET_READY_LED_IDX_IN_EXP_ENVI_DATA] = EXP_ENVI_OUTPUTS_DUR_STATUS_TIMER_OFF;
 								break;			
 							case EXP_ENVI_OUTPUTS_DUR_STATUS_TIMER_OFF:
-								print_message(WARNING_MSG ,"ExpEnviHandler", "HandleExpEnviHand2ExpEnviDurHandMsgs", "handle_exp_envi_handler_to_exp_envi_dur_handler_msg", "Unnecessary Cancel Output Timer for GET_READY_LED_IDX_IN_EXP_ENVI_DATA");
+//								print_message(WARNING_MSG ,"ExpEnviHandler", "HandleExpEnviHand2ExpEnviDurHandMsgs", "handle_exp_envi_handler_to_exp_envi_dur_handler_msg", "Unnecessary Cancel Output Timer for GET_READY_LED_IDX_IN_EXP_ENVI_DATA");
 								break; // do nothing
 							default:
 								get_exp_envi_dur_status_type_string(exp_envi_outputs_dur_status[GET_READY_LED_IDX_IN_EXP_ENVI_DATA], str_exp_envi_dur_status);  

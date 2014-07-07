@@ -26,7 +26,7 @@ bool handle_exp_envi_handler_to_trial_handler_msg(TimeStamp current_time)
 	while (get_next_exp_envi_hand_2_trial_hand_msg_buffer_item(msgs_exp_envi_hand_2_trial_hand, &msg_item))
 	{
 		get_exp_envi_hand_2_trial_hand_msg_type_string(msg_item.msg_type, str_exp_envi_msg);
-		print_message(INFO_MSG ,"TrialHandler", "HandleExpEnviHand2TrialHandMsgs", "handle_exp_envi_handler_to_trial_handler_msg", str_exp_envi_msg);
+//		print_message(INFO_MSG ,"TrialHandler", "HandleExpEnviHand2TrialHandMsgs", "handle_exp_envi_handler_to_trial_handler_msg", str_exp_envi_msg);
 		switch (msg_item.msg_type)
 		{
 			case EXP_ENVI_HAND_2_TRIAL_HAND_MSG_START_TRIAL_REQUEST:	
@@ -55,13 +55,13 @@ bool handle_exp_envi_handler_to_trial_handler_msg(TimeStamp current_time)
 						if (prev_trial_w_type->binary_reward)
 						{
 							paradigm->current_trial_data.reward_prediction = ((1.0-(1.0/REWARD_PREDICTION_WINDOW) ) * prev_trial_w_type->reward_prediction) + (1.0/REWARD_PREDICTION_WINDOW);
-							printf ("%f\t%f\t%f\n", paradigm->current_trial_data.reward_prediction, prev_trial_w_type->reward_prediction, averaging_struct_get_mean(paradigm->target_success_average_small[paradigm->current_trial_data.robot_target_position_idx]) );
+//							printf ("%f\t%f\t%f\n", paradigm->current_trial_data.reward_prediction, prev_trial_w_type->reward_prediction, averaging_struct_get_mean(paradigm->target_success_average_small[paradigm->current_trial_data.robot_target_position_idx]) );
 						}
 						else
 						{
 							if (averaging_struct_get_mean(paradigm->target_success_average_small[paradigm->current_trial_data.robot_target_position_idx]) < 0.5)  // if 3 out of last 4 trials failed
 								paradigm->current_trial_data.reward_prediction = (1.0-(1.0/REWARD_PREDICTION_WINDOW) ) * prev_trial_w_type->reward_prediction;
-							printf ("%f\t%f\t%f\n", paradigm->current_trial_data.reward_prediction, prev_trial_w_type->reward_prediction, averaging_struct_get_mean(paradigm->target_success_average_small[paradigm->current_trial_data.robot_target_position_idx]) );
+//							printf ("%f\t%f\t%f\n", paradigm->current_trial_data.reward_prediction, prev_trial_w_type->reward_prediction, averaging_struct_get_mean(paradigm->target_success_average_small[paradigm->current_trial_data.robot_target_position_idx]) );
 						}
 
 						trial_hand_to_neural_net_msg_add.difficulty_reward_predict_add.difficulty_level = paradigm->current_trial_data.difficulty_level;  // determined when trial ends according to robot start position

@@ -24,10 +24,10 @@ bool handle_robot_arm_position_threshold(ThreeDofRobot *robot, MovObjHandParadig
 			tip_position = &(robot->tip_position);
 			if (apply_ellipsoid_threshold(&(threshold->target_reach_threshold), tip_position->height, tip_position->depth, tip_position->lateral, target_coordinates->height, target_coordinates->depth, target_coordinates->lateral))
 			{
-				printf ("Reached Ellipsoid Threshold\n");
+//				printf ("Reached Ellipsoid Threshold\n");
 				*mov_obj_status = MOV_OBJ_STATUS_OUT_OF_TRIAL;
 				reward = distance_btwn_two_points(&(robot->tip_position), &(paradigm->target_info.cart_coordinates[paradigm->target_info.selected_position_idx]));
-				printf ("Distance to target = %f\n", reward);		
+//				printf ("Distance to target = %f\n", reward);		
 				if (! write_to_mov_obj_hand_2_trial_hand_msg_buffer(msgs_mov_obj_hand_2_trial_hand, current_time,  MOV_OBJ_HAND_2_TRIAL_HAND_MSG_REWARD_REQUEST, reward)) 
 					return print_message(ERROR_MSG ,"MovObjHandler", "HandleRobotPosition", "handle_robot_arm_position_threshold", "! write_to_mov_obj_hand_2_trial_hand_msg_buffer()");
 				if (! write_to_mov_obj_status_history(mov_obj_status_history, current_time, MOV_OBJ_STATUS_OUT_OF_TRIAL))
@@ -43,10 +43,10 @@ bool handle_robot_arm_position_threshold(ThreeDofRobot *robot, MovObjHandParadig
 
 			if (apply_ellipsoid_threshold(&(threshold->target_reach_threshold), tip_position->height, tip_position->depth, tip_position->lateral, opposite_target_coordinates->height, opposite_target_coordinates->depth, opposite_target_coordinates->lateral))
 			{
-				printf ("Reached Opposite Target\n");
+//				printf ("Reached Opposite Target\n");
 				*mov_obj_status = MOV_OBJ_STATUS_OUT_OF_TRIAL;
 				punishment = distance_btwn_two_points(&(robot->tip_position), &(paradigm->target_info.cart_coordinates[paradigm->target_info.selected_position_idx]));
-				printf ("Distance to target = %f\n", punishment);		
+//				printf ("Distance to target = %f\n", punishment);		
 				if (! write_to_mov_obj_hand_2_trial_hand_msg_buffer(msgs_mov_obj_hand_2_trial_hand, current_time,  MOV_OBJ_HAND_2_TRIAL_HAND_MSG_PUNISHMENT_REQUEST, punishment)) 
 					return print_message(ERROR_MSG ,"MovObjHandler", "HandleRobotPosition", "handle_robot_arm_position_threshold", "! write_to_mov_obj_hand_2_trial_hand_msg_buffer()");	
 				if (! write_to_mov_obj_status_history(mov_obj_status_history, current_time, MOV_OBJ_STATUS_OUT_OF_TRIAL))
@@ -54,10 +54,10 @@ bool handle_robot_arm_position_threshold(ThreeDofRobot *robot, MovObjHandParadig
 			}
 			if (! check_robot_space_borders(robot, paradigm))
 			{
-				printf ("Out of cartesian space borders\n");
+//				printf ("Out of cartesian space borders\n");
 				*mov_obj_status = MOV_OBJ_STATUS_OUT_OF_TRIAL;
 				punishment = distance_btwn_two_points(&(robot->tip_position), &(paradigm->target_info.cart_coordinates[paradigm->target_info.selected_position_idx]));
-				printf ("Distance to target = %f\n", punishment);		
+//				printf ("Distance to target = %f\n", punishment);		
 				if (! write_to_mov_obj_hand_2_trial_hand_msg_buffer(msgs_mov_obj_hand_2_trial_hand, current_time,  MOV_OBJ_HAND_2_TRIAL_HAND_MSG_PUNISHMENT_REQUEST, punishment)) 
 					return print_message(ERROR_MSG ,"MovObjHandler", "HandleRobotPosition", "handle_robot_arm_position_threshold", "! write_to_mov_obj_hand_2_trial_hand_msg_buffer()");
 				if (! write_to_mov_obj_status_history(mov_obj_status_history, current_time, MOV_OBJ_STATUS_OUT_OF_TRIAL))

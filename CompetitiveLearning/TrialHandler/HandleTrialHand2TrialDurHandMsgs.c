@@ -9,7 +9,7 @@ bool handle_trial_handler_to_trial_dur_handler_msg(TrialDurationStatus *trial_du
 	while (get_next_trial_hand_2_trial_dur_hand_msg_buffer_item(msgs_trial_hand_2_trial_dur_hand, &msg_item))
 	{
 		get_trial_hand_2_trial_dur_hand_msg_type_string(msg_item.msg_type, str_trial_hand_msg);
-		print_message(INFO_MSG ,"TrialHandler", "HandleTrialHand2TrialDurHandMsgs", "handle_trial_handler_to_trial_dur_handler_msg", str_trial_hand_msg);
+//		print_message(INFO_MSG ,"TrialHandler", "HandleTrialHand2TrialDurHandMsgs", "handle_trial_handler_to_trial_dur_handler_msg", str_trial_hand_msg);
 		switch (msg_item.msg_type)
 		{
 			case TRIAL_HAND_2_TRIAL_DUR_HAND_MSG_ENABLE_DURATION_HANDLING:	

@@ -29,7 +29,7 @@ bool handle_gui_to_trial_handler_msg(TimeStamp current_time)
 	while (get_next_gui_2_trial_hand_msg_buffer_item(msgs_gui_2_trial_hand, &msg_item))
 	{
 		get_gui_2_trial_hand_msg_type_string(msg_item.msg_type, str_gui_msg);
-		print_message(INFO_MSG ,"TrialHandler", "HandleGui2TrialHandMsgs", "handle_gui_to_trial_handler_msg", str_gui_msg);
+//		print_message(INFO_MSG ,"TrialHandler", "HandleGui2TrialHandMsgs", "handle_gui_to_trial_handler_msg", str_gui_msg);
 		switch (msg_item.msg_type)
 		{
 			case GUI_2_TRIAL_HAND_MSG_ENABLE_TRIAL_HANDLING:	
@@ -148,7 +148,7 @@ bool handle_gui_to_trial_handler_msg(TimeStamp current_time)
 					case TRIAL_STATUS_TRIALS_DISABLED:
 						if ((paradigm->current_trial_data.robot_start_position_idx +1 ) > (paradigm->num_of_robot_start_positions/2))
 						{
-							print_message(WARNING_MSG ,"TrialHandler", "HandleGui2TrialHandMsgs", "handle_gui_to_trial_handler_msg", "Reached paradigm->num_of_robot_start_positions number. Cannot be increase  more.");
+//							print_message(WARNING_MSG ,"TrialHandler", "HandleGui2TrialHandMsgs", "handle_gui_to_trial_handler_msg", "Reached paradigm->num_of_robot_start_positions number. Cannot be increase  more.");
 						}
 						else
 						{
@@ -164,7 +164,7 @@ bool handle_gui_to_trial_handler_msg(TimeStamp current_time)
 					case TRIAL_STATUS_IN_REFRACTORY:
 						if ((paradigm->current_trial_data.robot_start_position_idx +1 ) > (paradigm->num_of_robot_start_positions/2))
 						{
-							print_message(WARNING_MSG ,"TrialHandler", "HandleGui2TrialHandMsgs", "handle_gui_to_trial_handler_msg", "Reached paradigm->num_of_robot_start_positions number. Cannot be increase  more.");
+//							print_message(WARNING_MSG ,"TrialHandler", "HandleGui2TrialHandMsgs", "handle_gui_to_trial_handler_msg", "Reached paradigm->num_of_robot_start_positions number. Cannot be increase  more.");
 						}
 						else
 						{
@@ -174,7 +174,7 @@ bool handle_gui_to_trial_handler_msg(TimeStamp current_time)
 					case TRIAL_STATUS_START_TRIAL_AVAILABLE:	
 						if ((paradigm->current_trial_data.robot_start_position_idx +1 ) > (paradigm->num_of_robot_start_positions/2))
 						{
-							print_message(WARNING_MSG ,"TrialHandler", "HandleGui2TrialHandMsgs", "handle_gui_to_trial_handler_msg", "Reached paradigm->num_of_robot_start_positions number. Cannot be increase  more.");
+//							print_message(WARNING_MSG ,"TrialHandler", "HandleGui2TrialHandMsgs", "handle_gui_to_trial_handler_msg", "Reached paradigm->num_of_robot_start_positions number. Cannot be increase  more.");
 						}
 						else
 						{
@@ -193,7 +193,7 @@ bool handle_gui_to_trial_handler_msg(TimeStamp current_time)
 					case TRIAL_STATUS_TRIALS_DISABLED:
 						if (paradigm->current_trial_data.robot_start_position_idx == 0 )
 						{
-							print_message(WARNING_MSG ,"TrialHandler", "HandleGui2TrialHandMsgs", "handle_gui_to_trial_handler_msg", "Reached paradigm->current_trial_data.robot_start_position_idx == 1. Cannot  decrease  more.");
+//							print_message(WARNING_MSG ,"TrialHandler", "HandleGui2TrialHandMsgs", "handle_gui_to_trial_handler_msg", "Reached paradigm->current_trial_data.robot_start_position_idx == 1. Cannot  decrease  more.");
 						}
 						else
 						{
@@ -209,7 +209,7 @@ bool handle_gui_to_trial_handler_msg(TimeStamp current_time)
 					case TRIAL_STATUS_IN_REFRACTORY:
 						if (paradigm->current_trial_data.robot_start_position_idx == 0 )
 						{
-							print_message(WARNING_MSG ,"TrialHandler", "HandleGui2TrialHandMsgs", "handle_gui_to_trial_handler_msg", "Reached paradigm->current_trial_data.robot_start_position_idx == 1. Cannot  decrease  more.");
+//							print_message(WARNING_MSG ,"TrialHandler", "HandleGui2TrialHandMsgs", "handle_gui_to_trial_handler_msg", "Reached paradigm->current_trial_data.robot_start_position_idx == 1. Cannot  decrease  more.");
 						}
 						else
 						{
@@ -219,7 +219,7 @@ bool handle_gui_to_trial_handler_msg(TimeStamp current_time)
 					case TRIAL_STATUS_START_TRIAL_AVAILABLE:	
 						if (paradigm->current_trial_data.robot_start_position_idx == 0 )
 						{
-							print_message(WARNING_MSG ,"TrialHandler", "HandleGui2TrialHandMsgs", "handle_gui_to_trial_handler_msg", "Reached paradigm->current_trial_data.robot_start_position_idx == 1. Cannot  decrease  more.");
+//							print_message(WARNING_MSG ,"TrialHandler", "HandleGui2TrialHandMsgs", "handle_gui_to_trial_handler_msg", "Reached paradigm->current_trial_data.robot_start_position_idx == 1. Cannot  decrease  more.");
 						}
 						else
 						{
