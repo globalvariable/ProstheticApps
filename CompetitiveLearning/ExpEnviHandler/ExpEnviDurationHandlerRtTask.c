@@ -67,18 +67,29 @@ static void *rt_exp_envi_duration_handler(void *args)
 {
 	RT_TASK *handler;
         RTIME period;
-	unsigned int prev_time, curr_time;
-	TimeStamp curr_system_time;
+	RTIME prev_time, curr_time;
+	RTIME expected;
+	RTIME exp_envi_dur_hand_time_ns;
+	unsigned int timer_cpuid, task_cpuid;
+
+	timer_cpuid = (SYSTIME_PERIODIC_CPU_ID*MAX_NUM_OF_CPU_THREADS_PER_CPU)+SYSTIME_PERIODIC_CPU_THREAD_ID;
+	task_cpuid = (EXP_ENVI_DURATION_HANDLER_CPU_ID*MAX_NUM_OF_CPU_THREADS_PER_CPU)+EXP_ENVI_DURATION_HANDLER_CPU_THREAD_ID;
 
 	if (! check_rt_task_specs_to_init(static_rt_tasks_data, EXP_ENVI_DURATION_HANDLER_CPU_ID, EXP_ENVI_DURATION_HANDLER_CPU_THREAD_ID, EXP_ENVI_DURATION_HANDLER_CPU_THREAD_TASK_ID, EXP_ENVI_DURATION_HANDLER_PERIOD, FALSE))  {
 		print_message(ERROR_MSG ,"BMIExpController", "ExpEnviDurationHandlerRtTask", "rt_exp_envi_duration_handler", "! check_rt_task_specs_to_init()."); exit(1); }	
-        if (! (handler = rt_task_init_schmod(EXP_ENVI_DURATION_HANDLER_TASK_NAME, EXP_ENVI_DURATION_HANDLER_TASK_PRIORITY, EXP_ENVI_DURATION_HANDLER_STACK_SIZE, EXP_ENVI_DURATION_HANDLER_MSG_SIZE,EXP_ENVI_DURATION_HANDLER_POLICY, 1 << ((EXP_ENVI_DURATION_HANDLER_CPU_ID*MAX_NUM_OF_CPU_THREADS_PER_CPU)+EXP_ENVI_DURATION_HANDLER_CPU_THREAD_ID)))) {
+        if (! (handler = rt_task_init_schmod(EXP_ENVI_DURATION_HANDLER_TASK_NAME, EXP_ENVI_DURATION_HANDLER_TASK_PRIORITY, EXP_ENVI_DURATION_HANDLER_STACK_SIZE, EXP_ENVI_DURATION_HANDLER_MSG_SIZE,EXP_ENVI_DURATION_HANDLER_POLICY, 1 << task_cpuid))) {
 		print_message(ERROR_MSG ,"BMIExpController", "ExpEnviDurationHandlerRtTask", "rt_exp_envi_duration_handler", "handler = rt_task_init_schmod()."); exit(1); }
 	if (! write_rt_task_specs_to_rt_tasks_data(static_rt_tasks_data, EXP_ENVI_DURATION_HANDLER_CPU_ID, EXP_ENVI_DURATION_HANDLER_CPU_THREAD_ID, EXP_ENVI_DURATION_HANDLER_CPU_THREAD_TASK_ID, EXP_ENVI_DURATION_HANDLER_PERIOD, EXP_ENVI_DURATION_HANDLER_POSITIVE_JITTER_THRES, EXP_ENVI_DURATION_HANDLER_NEGATIVE_JITTER_THRES, "ExpEnviDurationHandler", FALSE))  {
 		print_message(ERROR_MSG ,"BMIExpController", "ExpEnviDurationHandlerRtTask", "rt_exp_envi_duration_handler", "! write_rt_task_specs_to_rt_tasks_data()."); exit(1); }	
-        period = nano2count(EXP_ENVI_HANDLER_PERIOD);
-        rt_task_make_periodic(handler, rt_get_time() + period, period);
-	prev_time = rt_get_cpu_time_ns();	
+
+	curr_time = rt_get_time_cpuid(task_cpuid);	
+	exp_envi_dur_hand_time_ns = rt_get_time_ns_cpuid(timer_cpuid);	// use system time
+
+        period = nano2count(EXP_ENVI_DURATION_HANDLER_PERIOD);
+        rt_task_make_periodic(handler, curr_time + period, period);
+
+	prev_time = curr_time ;
+	expected = curr_time + period;
 
 
         mlockall(MCL_CURRENT | MCL_FUTURE);
@@ -89,17 +100,21 @@ static void *rt_exp_envi_duration_handler(void *args)
         while (rt_exp_envi_duration_handler_stay_alive) 
 	{
         	rt_task_wait_period();
-		curr_time = rt_get_cpu_time_ns();
-		evaluate_and_save_jitter(static_rt_tasks_data, EXP_ENVI_DURATION_HANDLER_CPU_ID, EXP_ENVI_DURATION_HANDLER_CPU_THREAD_ID, EXP_ENVI_DURATION_HANDLER_CPU_THREAD_TASK_ID, prev_time, curr_time);
+
+		curr_time = rt_get_time_cpuid(task_cpuid);	
+		exp_envi_dur_hand_time_ns = rt_get_time_ns_cpuid(timer_cpuid);	// use system time
+
+		expected += period;
+		evaluate_and_save_jitter(static_rt_tasks_data, EXP_ENVI_DURATION_HANDLER_CPU_ID, EXP_ENVI_DURATION_HANDLER_CPU_THREAD_ID, EXP_ENVI_DURATION_HANDLER_CPU_THREAD_TASK_ID, curr_time, expected);
 		prev_time = curr_time;
-		curr_system_time = *sys_time_ptr;
+
 		// routines
-		if (! handle_exp_envi_handler_to_exp_envi_dur_handler_msg(exp_envi_inputs_min_duration_status, exp_envi_inputs_max_duration_status, curr_system_time, static_msgs_exp_envi_hand_2_exp_envi_dur_hand, inputs_handling_end_time_min, inputs_handling_end_time_max, exp_envi_outputs_duration_status, outputs_handling_end_time)) {
+		if (! handle_exp_envi_handler_to_exp_envi_dur_handler_msg(exp_envi_inputs_min_duration_status, exp_envi_inputs_max_duration_status, exp_envi_dur_hand_time_ns, static_msgs_exp_envi_hand_2_exp_envi_dur_hand, inputs_handling_end_time_min, inputs_handling_end_time_max, exp_envi_outputs_duration_status, outputs_handling_end_time)) {
 			print_message(ERROR_MSG ,"BMIExpController", "ExpEnviDurationHandlerRtTask", "rt_exp_envi_duration_handler", "! handle_exp_envi_handler_to_exp_envi_dur_handler_msg()."); break; }
-		if (! handle_exp_envi_handler_duration(exp_envi_inputs_min_duration_status, exp_envi_inputs_max_duration_status, curr_system_time, inputs_handling_end_time_min, inputs_handling_end_time_max, num_of_input_components, static_msgs_exp_envi_dur_hand_2_exp_envi_hand, num_of_output_components, exp_envi_outputs_duration_status, outputs_handling_end_time))  {
+		if (! handle_exp_envi_handler_duration(exp_envi_inputs_min_duration_status, exp_envi_inputs_max_duration_status, exp_envi_dur_hand_time_ns, inputs_handling_end_time_min, inputs_handling_end_time_max, num_of_input_components, static_msgs_exp_envi_dur_hand_2_exp_envi_hand, num_of_output_components, exp_envi_outputs_duration_status, outputs_handling_end_time))  {
 			print_message(ERROR_MSG ,"BMIExpController", "ExpEnviDurationHandlerRtTask", "rt_exp_envi_duration_handler", "! handle_exp_envi_handler_duration()."); break; }
 		// routines	
-		evaluate_and_save_period_run_time(static_rt_tasks_data, EXP_ENVI_DURATION_HANDLER_CPU_ID, EXP_ENVI_DURATION_HANDLER_CPU_THREAD_ID, EXP_ENVI_DURATION_HANDLER_CPU_THREAD_TASK_ID, curr_time, rt_get_cpu_time_ns());		
+		evaluate_and_save_period_run_time(static_rt_tasks_data, EXP_ENVI_DURATION_HANDLER_CPU_ID, EXP_ENVI_DURATION_HANDLER_CPU_THREAD_ID, EXP_ENVI_DURATION_HANDLER_CPU_THREAD_TASK_ID, curr_time, rt_get_time_cpuid(timer_cpuid));		
         }
 	rt_make_soft_real_time();
         rt_task_delete(handler);

@@ -40,14 +40,6 @@ int main( int argc, char *argv[])
 	if (rt_tasks_data == NULL) 
 		return print_message(ERROR_MSG ,"MovObjHandler", "MovObjHandler", "main", "rt_tasks_data == NULL.");
 
-
-	sys_time_ptr = &(rt_tasks_data->current_system_time);
-
-
-	if (*sys_time_ptr == 0)
-		return print_message(ERROR_MSG ,"MovObjHandler", "MovObjHandler", "main", "rt_tasks_data->current_daq_system_time.");
-
-
 	robot_arm = g_new0(ThreeDofRobot, 1);
 	mov_obj_paradigm = g_new0(MovObjHandParadigmRobotReach, 1);
 

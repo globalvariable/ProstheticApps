@@ -31,8 +31,6 @@
 #include "../TaskConfig.h"
 #include "../InterProcessMsgConfig.h"
 
-TimeStamp	*sys_time_ptr;		
-
 bool create_mov_obj_handler_rt_thread(RtTasksData *rt_tasks_data, ThreeDofRobot *robot_arm, Gui2MovObjHandMsg *msgs_gui_2_mov_obj_hand, MovObjHand2GuiMsg *msgs_mov_obj_hand_2_gui, MovObjHandParadigmRobotReach *mov_obj_paradigm, MessageLogBuffer *message_log, MovObjStatusHistory* mov_obj_status_history, ThreeDofRobotAngleHistory *robot_angle_history, ThreeDofRobotPulseHistory *robot_pulse_history);
 bool kill_mov_obj_handler_rt_thread(void);
 

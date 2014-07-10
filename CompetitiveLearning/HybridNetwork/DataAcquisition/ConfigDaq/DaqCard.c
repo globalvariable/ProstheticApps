@@ -40,7 +40,7 @@ static int ni6259_comedi_configure(unsigned int card_number)
 	ni6259_comedi_cmd[card_number].flags = 0;
 	ni6259_comedi_cmd[card_number].flags = TRIG_RT | TRIG_WAKE_EOS;   // to push data to DMA after every scan. 
 
-	ni6259_comedi_cmd[card_number].start_src = TRIG_NOW;
+	ni6259_comedi_cmd[card_number].start_src = TRIG_INT;
 	ni6259_comedi_cmd[card_number].start_arg = 0;
 
 	ni6259_comedi_cmd[card_number].scan_begin_src = TRIG_TIMER;

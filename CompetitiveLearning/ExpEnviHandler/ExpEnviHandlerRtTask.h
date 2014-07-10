@@ -25,8 +25,6 @@
 #include "../TaskConfig.h"
 
 
-TimeStamp	*sys_time_ptr;		
-
 bool create_exp_envi_handler_rt_thread(RtTasksData *rt_tasks_data, ExpEnviData *exp_envi_data, Gui2ExpEnviHandMsg *msgs_gui_2_exp_envi_hand, ExpEnviHand2GuiMsg *msgs_exp_envi_hand_2_gui, ExpEnviInputStatusHistory *exp_envi_input_status_history, ExpEnviOutputStatusHistory *exp_envi_output_status_history, ExpEnviHandParadigmRobotReach *exp_envi_paradigm);
 bool kill_exp_envi_handler_rt_thread(void);
 

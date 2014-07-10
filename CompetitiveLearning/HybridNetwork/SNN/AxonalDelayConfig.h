@@ -12,7 +12,7 @@
 #define MAXIMUM_IN_SILICO_TO_IN_SILICO_AXONAL_DELAY MINIMUM_IN_SILICO_TO_IN_SILICO_AXONAL_DELAY + 10000000   // it can be increased but it will lead to increase in event buffer size of neurons
 
 /// determine values below according to the latency due to BlueSpike spike detection - Ext to Internal network event scheduler and internal network simulation period. 
-#define MINIMUM_BLUE_SPIKE_TO_IN_SILICO_AXONAL_DELAY BLUESPIKE_DAQ_PERIOD+(SPIKE_MIN_END_SAMP_NUM*SAMPLING_INTERVAL)+1500000	 /// 1.5 ms for jitters
+#define MINIMUM_BLUE_SPIKE_TO_IN_SILICO_AXONAL_DELAY BLUESPIKE_DAQ_PERIOD+(SPIKE_MIN_END_SAMP_NUM*SAMPLING_INTERVAL)+1500000	 /// 1.5 ms for jitters and latency after internal trigger
 #define MAXIMUM_BLUE_SPIKE_TO_IN_SILICO_AXONAL_DELAY MINIMUM_BLUE_SPIKE_TO_IN_SILICO_AXONAL_DELAY + 10000000 // it can be increased but it will lead to increase in event buffer size of neurons
 
 

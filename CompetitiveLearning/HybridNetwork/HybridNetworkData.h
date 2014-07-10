@@ -9,8 +9,6 @@
 
 RtTasksData *rt_tasks_data;
 
-pthread_mutex_t 	mutex_sys_time;
-
 Network		*in_silico_network;
 Network		*blue_spike_network;
 

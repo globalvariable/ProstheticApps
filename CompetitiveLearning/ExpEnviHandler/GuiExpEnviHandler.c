@@ -125,7 +125,7 @@ static gboolean timeout_callback(gpointer user_data)
 				path_temp = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (btn_select_directory_to_save));
 				path = &path_temp[7];   // since     uri returns file:///home/....	
 				recording_number = msg_item.additional_data;
-				if (!(*create_data_directory[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(3, path, *sys_time_ptr, recording_number))	
+				if (!(*create_data_directory[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(3, path, static_rt_tasks_data->current_system_time, recording_number))	
 				{
 					print_message(ERROR_MSG ,"ExpEnviHandler", "GuiExpEnviHandler", "timeout_callback", " *create_data_directory().");		
 					exit(1);
@@ -144,7 +144,7 @@ static gboolean timeout_callback(gpointer user_data)
 					exit(1);
 				}	
 				recording_number = msg_item.additional_data;
-				if (! (*fclose_all_data_files[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(1, *sys_time_ptr))	
+				if (! (*fclose_all_data_files[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(1, static_rt_tasks_data->current_system_time))	
 				{
 					print_message(ERROR_MSG ,"ExpEnviHandler", "GuiExpEnviHandler", "timeout_callback", " *fclose_all_data_file().");		
 					exit(1);
@@ -160,7 +160,7 @@ static gboolean timeout_callback(gpointer user_data)
 				static_exp_envi_output_status_history->buff_read_idx = static_exp_envi_output_status_history->buff_write_idx;
 
 				recording_number = msg_item.additional_data;
-				if (! (*fclose_all_data_files[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(1, *sys_time_ptr))	
+				if (! (*fclose_all_data_files[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(1, static_rt_tasks_data->current_system_time))	
 				{
 					print_message(ERROR_MSG ,"ExpEnviHandler", "GuiExpEnviHandler", "timeout_callback", "! *fclose_all_data_files().");
 					exit(1);

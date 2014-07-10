@@ -526,7 +526,7 @@ static gboolean timeout_callback(gpointer user_data)
 				path_temp = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (btn_select_directory_to_save));
 				path = &path_temp[7];   // since     uri returns file:///home/....	
 				recording_number = msg_item.additional_data;
-				if (! (*create_data_directory[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(3, path, *sys_time_ptr, recording_number))	
+				if (! (*create_data_directory[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(3, path, static_rt_tasks_data->current_system_time, recording_number))	
 				{
 					print_message(ERROR_MSG ,"TrialHandler", "GuiTrialHandler", "timeout_callback", " *create_data_directory().");	
 					exit(1);
@@ -547,7 +547,7 @@ static gboolean timeout_callback(gpointer user_data)
 					exit(1);
 				}	
 				recording_number = msg_item.additional_data;
-				if (! (*fclose_all_data_files[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(2, *sys_time_ptr, &(classified_history->all_trials->history[recording_number])))	
+				if (! (*fclose_all_data_files[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(2, static_rt_tasks_data->current_system_time, &(classified_history->all_trials->history[recording_number])))	
 				{
 					print_message(ERROR_MSG ,"TrialHandler", "GuiTrialHandler", "timeout_callback", " *fclose_all_data_files().");
 					exit(1);
@@ -566,7 +566,7 @@ static gboolean timeout_callback(gpointer user_data)
 				}
 				else	// it comes here when there is continous recording.
 				{
-					if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, *sys_time_ptr, GUI_2_TRIAL_HAND_MSG_BROADCAST_START_RECORDING, 0))
+					if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, static_rt_tasks_data->current_system_time, GUI_2_TRIAL_HAND_MSG_BROADCAST_START_RECORDING, 0))
 						return print_message(ERROR_MSG ,"TrialHandler", "GuiTrialHandler", "enable_trials_button_func", "! write_to_gui_2_trial_hand_msg_buffer().");			
 				}
 				break;
@@ -578,7 +578,7 @@ static gboolean timeout_callback(gpointer user_data)
 				static_trial_status_history->buff_read_idx = static_trial_status_history->buff_write_idx;	
 
 				recording_number = msg_item.additional_data;
-				if (! (*fclose_all_data_files[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(2, *sys_time_ptr, &(classified_history->all_trials->history[recording_number])))	
+				if (! (*fclose_all_data_files[MAX_NUMBER_OF_DATA_FORMAT_VER-1])(2, static_rt_tasks_data->current_system_time, &(classified_history->all_trials->history[recording_number])))	
 				{
 					print_message(ERROR_MSG ,"TrialHandler", "GuiTrialHandler", "timeout_callback", "! *fclose_all_data_files().");
 					exit(1);
@@ -628,7 +628,7 @@ static gboolean timeout_callback(gpointer user_data)
 						if ( continuous_recording)
 						{
 							usleep(100000);
-							if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, *sys_time_ptr, GUI_2_TRIAL_HAND_MSG_BROADCAST_STOP_RECORDING, 0))
+							if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, static_rt_tasks_data->current_system_time, GUI_2_TRIAL_HAND_MSG_BROADCAST_STOP_RECORDING, 0))
 								return print_message(ERROR_MSG ,"TrialHandler", "GuiTrialHandler", "enable_trials_button_func", "! write_to_gui_2_trial_hand_msg_buffer().");	
 						}
 						else
@@ -675,32 +675,32 @@ static void reset_connections_button_func (void)
 
 static void enable_trials_button_func (void)
 {
-	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, *sys_time_ptr, GUI_2_TRIAL_HAND_MSG_ENABLE_TRIAL_HANDLING, 0))
+	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, static_rt_tasks_data->current_system_time, GUI_2_TRIAL_HAND_MSG_ENABLE_TRIAL_HANDLING, 0))
 		return (void)print_message(ERROR_MSG ,"TrialHandler", "GuiTrialHandler", "enable_trials_button_func", "! write_to_gui_2_trial_hand_msg_buffer().");		
 	gtk_widget_set_sensitive(btn_disable_trials, TRUE);	
 }
 
 static void disable_trials_button_func (void)
 {
-	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, *sys_time_ptr, GUI_2_TRIAL_HAND_MSG_DISABLE_TRIAL_HANDLING, 0))
+	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, static_rt_tasks_data->current_system_time, GUI_2_TRIAL_HAND_MSG_DISABLE_TRIAL_HANDLING, 0))
 		return (void)print_message(ERROR_MSG ,"TrialHandler", "GuiTrialHandler", "disable_trials_button_func", "! write_to_gui_2_trial_hand_msg_buffer().");		
 }
 
 static void quit_trials_button_func (void)
 {
-	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, *sys_time_ptr, GUI_2_TRIAL_HAND_MSG_QUIT, 0))
+	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, static_rt_tasks_data->current_system_time, GUI_2_TRIAL_HAND_MSG_QUIT, 0))
 		return (void)print_message(ERROR_MSG ,"TrialHandler", "GuiTrialHandler", "quit_trials_button_func", "! write_to_gui_2_trial_hand_msg_buffer().");		
 }
 
 static void auto_target_select_mode_on_button_func(void)
 {
-	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, *sys_time_ptr, GUI_2_TRIAL_HAND_MSG_AUTO_TARGET_SELECTION_ON, 0))
+	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, static_rt_tasks_data->current_system_time, GUI_2_TRIAL_HAND_MSG_AUTO_TARGET_SELECTION_ON, 0))
 		return (void)print_message(ERROR_MSG ,"TrialHandler", "GuiTrialHandler", "auto_target_select_mode_on_button_func", "! write_to_gui_2_trial_hand_msg_buffer().");	
 }
 
 static void auto_target_select_mode_off_button_func(void)
 {
-	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, *sys_time_ptr, GUI_2_TRIAL_HAND_MSG_AUTO_TARGET_SELECTION_OFF, 0))
+	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, static_rt_tasks_data->current_system_time, GUI_2_TRIAL_HAND_MSG_AUTO_TARGET_SELECTION_OFF, 0))
 		return (void)print_message(ERROR_MSG ,"TrialHandler", "GuiTrialHandler", "auto_target_select_mode_off_button_func", "! write_to_gui_2_trial_hand_msg_buffer().");	
 }
 
@@ -710,20 +710,20 @@ static void select_target_button_func (void)
 	target_idx = (unsigned int)atof(gtk_entry_get_text(GTK_ENTRY(entry_select_target)));
 	if (target_idx >= paradigm->num_of_robot_target_positions)
 		return (void)print_message(ERROR_MSG ,"TrialHandler", "GuiTrialHandler", "select_target_button_func", "target_idx >= static_trial_hand_paradigm->num_of_robot_target_positions.");	
-	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, *sys_time_ptr, GUI_2_TRIAL_HAND_MSG_SELECT_TARGET, target_idx))
+	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, static_rt_tasks_data->current_system_time, GUI_2_TRIAL_HAND_MSG_SELECT_TARGET, target_idx))
 		return (void)print_message(ERROR_MSG ,"TrialHandler", "GuiTrialHandler", "select_target_button_func", "! write_to_gui_2_trial_hand_msg_buffer().");	
 }
 
 
 static void increase_robot_start_idx_button_func (void)
 {
-	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, *sys_time_ptr, GUI_2_TRIAL_HAND_MSG_INCREASE_ROBOT_START_POSITION_IDX, 0))
+	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, static_rt_tasks_data->current_system_time, GUI_2_TRIAL_HAND_MSG_INCREASE_ROBOT_START_POSITION_IDX, 0))
 		return (void)print_message(ERROR_MSG ,"TrialHandler", "GuiTrialHandler", "increase_robot_start_idx_button_func", "! write_to_gui_2_trial_hand_msg_buffer().");		
 }
 
 static void decrease_robot_start_idx_button_func (void)
 {
-	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, *sys_time_ptr, GUI_2_TRIAL_HAND_MSG_DECREASE_ROBOT_START_POSITION_IDX, 0))
+	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, static_rt_tasks_data->current_system_time, GUI_2_TRIAL_HAND_MSG_DECREASE_ROBOT_START_POSITION_IDX, 0))
 		return (void)print_message(ERROR_MSG ,"TrialHandler", "GuiTrialHandler", "decrease_robot_start_idx_button_func", "! write_to_gui_2_trial_hand_msg_buffer().");		
 }
 
@@ -772,7 +772,7 @@ static void create_recording_folder_button_func (void)
 
 static void start_recording_button_func (void)
 {
-	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, *sys_time_ptr, GUI_2_TRIAL_HAND_MSG_BROADCAST_START_RECORDING, 0))
+	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, static_rt_tasks_data->current_system_time, GUI_2_TRIAL_HAND_MSG_BROADCAST_START_RECORDING, 0))
 		return (void)print_message(ERROR_MSG ,"TrialHandler", "GuiTrialHandler", "start_recording_button_func ", "! write_to_gui_2_trial_hand_msg_buffer().");
 }
 static void stop_recording_button_func (void)
@@ -782,7 +782,7 @@ static void stop_recording_button_func (void)
 }
 static void cancel_recording_button_func (void)
 {
-	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, *sys_time_ptr, GUI_2_TRIAL_HAND_MSG_BROADCAST_CANCEL_RECORDING, 0))
+	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, static_rt_tasks_data->current_system_time, GUI_2_TRIAL_HAND_MSG_BROADCAST_CANCEL_RECORDING, 0))
 		return (void)print_message(ERROR_MSG ,"TrialHandler", "GuiTrialHandler", "enable_trials_button_func", "! write_to_gui_2_trial_hand_msg_buffer().");	
 }
 
@@ -815,7 +815,7 @@ static void set_directory_btn_select_directory_to_save(void)
 
 static void release_reward_button_func (void)
 {
-	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, *sys_time_ptr, GUI_2_TRIAL_HAND_MSG_RELEASE_REWARD, 0))
+	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, static_rt_tasks_data->current_system_time, GUI_2_TRIAL_HAND_MSG_RELEASE_REWARD, 0))
 		return (void)print_message(ERROR_MSG ,"TrialHandler", "GuiTrialHandler", "start_recording_button_func ", "! write_to_gui_2_trial_hand_msg_buffer().");	
 }
 
@@ -824,7 +824,7 @@ static void start_trial_button_func (void)
 {
 #ifdef	SIMULATION_MODE
 
-	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, *sys_time_ptr, GUI_2_TRIAL_HAND_MSG_START_TRIAL_REQUEST, 0))
+	if (!write_to_gui_2_trial_hand_msg_buffer(static_msgs_gui_2_trial_hand, static_rt_tasks_data->current_system_time, GUI_2_TRIAL_HAND_MSG_START_TRIAL_REQUEST, 0))
 		return (void)print_message(ERROR_MSG ,"TrialHandler", "GuiTrialHandler", "start_recording_button_func ", "! write_to_gui_2_trial_hand_msg_buffer().");	
 
 #endif

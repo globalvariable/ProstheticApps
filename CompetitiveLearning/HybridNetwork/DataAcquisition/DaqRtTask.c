@@ -28,23 +28,34 @@ bool start_acquisition(void)
 static void *rt_daq_handler(void *args)
 {
 	RT_TASK *handler;
-	RTIME curr_time, measured_time;
-	TimeStamp current_daq_time;
+	RTIME curr_time, measured_time, prev_time, latency;
+	RTIME current_daq_time;
         RTIME period;
-        RTIME sync_step, diff;
-        RTIME current_master_cpu_time;
-        RTIME expected;
-	TimeStamp current_system_time;
+        RTIME sync_step, diff, diff_thres;
 	unsigned int daq_num;
 	long int cb_val = 0, cb_retval = 0;
 	lsampl_t daq_data[MAX_NUM_OF_CHANNEL_PER_DAQ_CARD*NUM_OF_SCAN];
 
-	unsigned int daq_sync_cntr = 0;
-	unsigned int timer_cpuid, i;
+	unsigned int daq_sync_cntr = 3;
+	unsigned int timer_cpuid;
 
-	timer_cpuid = (BLUESPIKE_PERIODIC_CPU_ID*MAX_NUM_OF_CPU_THREADS_PER_CPU)+BLUESPIKE_PERIODIC_CPU_THREAD_ID;
+	comedi_insn insn;
+	lsampl_t insn_data[1];
+
+	timer_cpuid = (SYSTIME_PERIODIC_CPU_ID*MAX_NUM_OF_CPU_THREADS_PER_CPU)+SYSTIME_PERIODIC_CPU_THREAD_ID;
 
 	daq_num = *((unsigned int*)args);
+
+	memset(&insn, 0, sizeof(comedi_insn));
+	insn.insn = INSN_INTTRIG;
+	insn.subdev = COMEDI_SUBDEVICE_AI;
+	insn.data = insn_data;
+	insn.n = 1;
+	insn_data[0] = 0;
+
+	period = nano2count(BLUESPIKE_DAQ_PERIOD);
+	sync_step = nano2count(5000);	// 5 microseconds
+	diff_thres = nano2count(500000);	// 500 microseconds
 
 	if (! check_rt_task_specs_to_init(rt_tasks_data, BLUESPIKE_DAQ_CPU_ID, BLUESPIKE_DAQ_CPU_THREAD_ID, BLUESPIKE_DAQ_CPU_THREAD_TASK_ID+daq_num, BLUESPIKE_DAQ_PERIOD, TRUE))  {
 		print_message(ERROR_MSG ,"PCIe6259", "RtTask", "rt_periodic_handler", "! check_rt_task_specs_to_init()."); exit(1); }
@@ -65,33 +76,32 @@ static void *rt_daq_handler(void *args)
 	if (! config_daq_card(daq_num))  {
 		print_message(ERROR_MSG ,"PCIe6259", "RtTask", "rt_daq_handler", "! config_daq_cards()."); exit(1); }		
 
-	for (i = 0; i < 13; i++)	// wait for card configuration and interrupt generation stabilization.
-	{
-		rt_comedi_wait(&cb_val);
-		rt_comedi_command_data_read(ni6259_comedi_dev[daq_num], COMEDI_SUBDEVICE_AI, MAX_NUM_OF_CHANNEL_PER_DAQ_CARD*NUM_OF_SCAN, daq_data);
-	}
+	sleep(1);
 
-	pthread_mutex_lock(&mutex_sys_time);
-	curr_time = rt_get_time_cpuid(timer_cpuid);	
-	current_daq_time =  count2nano(curr_time - rt_tasks_data->current_cpu_time) + rt_tasks_data->current_system_time;
-	pthread_mutex_unlock(&mutex_sys_time);
 
-	period = nano2count(BLUESPIKE_DAQ_PERIOD);
-	sync_step = nano2count(5000);	// 5 microseconds
+	prev_time = rt_get_time_cpuid(timer_cpuid);	
+
+	comedi_do_insn(ni6259_comedi_dev[daq_num], &insn);
+	rt_comedi_wait(&cb_val);
+
+	measured_time = rt_get_time_cpuid(timer_cpuid);	
+
+	printf ("%lld\n", count2nano(measured_time-prev_time));
+
+	latency = measured_time - prev_time - nano2count(BLUESPIKE_DAQ_PERIOD);
+	curr_time = measured_time;	// last sample's timestamp
+	prev_time = measured_time;
+
+	rt_comedi_command_data_read(ni6259_comedi_dev[daq_num], COMEDI_SUBDEVICE_AI, MAX_NUM_OF_CHANNEL_PER_DAQ_CARD*NUM_OF_SCAN, daq_data);	// discard this reading.
 
         while (daq_cards_on) 
 	{
 		cb_val = 0;
 		cb_retval += rt_comedi_wait(&cb_val);
 
-		pthread_mutex_lock(&mutex_sys_time);
 		measured_time = rt_get_time_cpuid(timer_cpuid);	
-		current_master_cpu_time = rt_tasks_data->current_cpu_time;
-		current_system_time = rt_tasks_data->current_system_time;
-		pthread_mutex_unlock(&mutex_sys_time);
 
-		curr_time += period;	// expected
-		expected = curr_time;
+		curr_time += period;	
 
 		daq_sync_cntr++;
 		if (daq_sync_cntr == 4)
@@ -103,22 +113,23 @@ static void *rt_daq_handler(void *args)
 			diff = curr_time-measured_time;
 			if (diff > sync_step)
 				curr_time -= sync_step;  // sync
-			else if ((-diff) > sync_step)
+			else if (diff < (-sync_step))
 				curr_time += sync_step;  // sync
 			else
 				curr_time = measured_time;
-			if (diff > 1000000) 
-				print_message(WARNING_MSG ,"HybridNetwork", "DaqRtTask", "rt_daq_handler", "cpu - daq_card clock mismatch is higher than 1 ms. diff > 1000000"); 	
-			if (diff < (-1000000)) 
-				print_message(WARNING_MSG ,"HybridNetwork", "DaqRtTask", "rt_daq_handler", "cpu - daq_card clock mismatch is higher than 1 ms. diff < (-1000000)"); 			
+			if (diff > diff_thres) 
+				print_message(WARNING_MSG ,"HybridNetwork", "DaqRtTask", "rt_daq_handler", "cpu - daq_card clock mismatch is higher than 0.5 ms. diff > diff_thres"); 	
+			if (diff < (-diff_thres)) 
+				print_message(WARNING_MSG ,"HybridNetwork", "DaqRtTask", "rt_daq_handler", "cpu - daq_card clock mismatch is higher than 0.5 ms. diff < (-diff_thres)"); 			
+
+//			printf ("%lld\n", count2nano(measured_time-prev_time));
 
 		}
+//		printf ("%lld\n", count2nano(measured_time-prev_time));
 
+		prev_time = measured_time;
 
-
-		current_daq_time = count2nano(curr_time - current_master_cpu_time) + current_system_time;
-
-
+		current_daq_time = count2nano(curr_time - latency);
 
 		// routines
 		if (!(cb_val & COMEDI_CB_EOS))

@@ -16,12 +16,6 @@ int main( int argc, char *argv[])
 	if (rt_tasks_data == NULL) 
 		return print_message(ERROR_MSG ,"ExpEnviHandler", "ExpEnviHandler", "main", "rt_tasks_data == NULL.");
 
-	sys_time_ptr = &(rt_tasks_data->current_system_time);
-
-	if (*sys_time_ptr == 0)
-		return print_message(ERROR_MSG ,"ExpEnviHandler", "ExpEnviHandler", "main", "rt_tasks_data->current_daq_system_time.");
-
-
 
 	exp_envi_data = allocate_exp_envi_data(exp_envi_data);
 
