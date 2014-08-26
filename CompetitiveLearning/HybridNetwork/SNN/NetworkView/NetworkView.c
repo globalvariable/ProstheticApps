@@ -858,7 +858,7 @@ bool create_network_view_gui(GtkWidget *tabs)
         gtk_box_pack_start(GTK_BOX(hbox),lbl, TRUE,TRUE,0);
         entry_total_synaptic_weights = gtk_entry_new();
         gtk_box_pack_start(GTK_BOX(hbox), entry_total_synaptic_weights, FALSE,FALSE,0);
-	gtk_entry_set_text(GTK_ENTRY(entry_total_synaptic_weights), "110.0");	
+	gtk_entry_set_text(GTK_ENTRY(entry_total_synaptic_weights), "90.0");	
 	gtk_widget_set_size_request(entry_total_synaptic_weights, 60, 25) ;
 
 	gtk_box_pack_start(GTK_BOX(vbox),gtk_hseparator_new(), FALSE,FALSE, 5);  
@@ -1297,6 +1297,7 @@ static void submit_excitatory_synaptic_weight_for_neuron_button_func(void)
 	upper_limit = atof(gtk_entry_get_text(GTK_ENTRY(entry_weight_upper_limit)));
 	if (! set_neuron_excitatory_synaptic_weights(neuron, lower_limit, upper_limit))
 		return (void)print_message(ERROR_MSG ,"HybridNetwork", "NetworkView", "submit_excitatory_synaptic_weight_for_neuron_button_func", "! set_neuron_excitatory_synaptic_weights().");
+	normalize_plastic_synaptic_weights(in_silico_network, total_synaptic_weights);
 }
 
 static void submit_new_stdp_and_eligibility_for_neuron_button_func(void)

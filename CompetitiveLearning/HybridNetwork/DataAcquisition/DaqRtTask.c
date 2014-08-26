@@ -31,12 +31,11 @@ static void *rt_daq_handler(void *args)
 	RTIME curr_time, measured_time, prev_time, latency;
 	RTIME current_daq_time;
         RTIME period;
-        RTIME sync_step, diff, diff_thres;
+        RTIME sync_step, diff, diff_thres, net_diff = 0;
 	unsigned int daq_num;
 	long int cb_val = 0, cb_retval = 0;
 	lsampl_t daq_data[MAX_NUM_OF_CHANNEL_PER_DAQ_CARD*NUM_OF_SCAN];
 
-	unsigned int daq_sync_cntr = 3;
 	unsigned int timer_cpuid;
 
 	comedi_insn insn;
@@ -54,7 +53,7 @@ static void *rt_daq_handler(void *args)
 	insn_data[0] = 0;
 
 	period = nano2count(BLUESPIKE_DAQ_PERIOD);
-	sync_step = nano2count(5000);	// 5 microseconds
+	sync_step = nano2count(2000);	// 2 microseconds
 	diff_thres = nano2count(500000);	// 500 microseconds
 
 	if (! check_rt_task_specs_to_init(rt_tasks_data, BLUESPIKE_DAQ_CPU_ID, BLUESPIKE_DAQ_CPU_THREAD_ID, BLUESPIKE_DAQ_CPU_THREAD_TASK_ID+daq_num, BLUESPIKE_DAQ_PERIOD, TRUE))  {
@@ -103,28 +102,31 @@ static void *rt_daq_handler(void *args)
 
 		curr_time += period;	
 
-		daq_sync_cntr++;
-		if (daq_sync_cntr == 4)
+		evaluate_and_save_jitter(rt_tasks_data, BLUESPIKE_DAQ_CPU_ID, BLUESPIKE_DAQ_CPU_THREAD_ID, BLUESPIKE_DAQ_CPU_THREAD_TASK_ID+daq_num, measured_time, curr_time);
+
+		diff = curr_time-measured_time;
+		if (diff > sync_step)
 		{
-			daq_sync_cntr = 0;
-
-			evaluate_and_save_jitter(rt_tasks_data, BLUESPIKE_DAQ_CPU_ID, BLUESPIKE_DAQ_CPU_THREAD_ID, BLUESPIKE_DAQ_CPU_THREAD_TASK_ID+daq_num, measured_time, curr_time);
-
-			diff = curr_time-measured_time;
-			if (diff > sync_step)
-				curr_time -= sync_step;  // sync
-			else if (diff < (-sync_step))
-				curr_time += sync_step;  // sync
-			else
-				curr_time = measured_time;
-			if (diff > diff_thres) 
-				print_message(WARNING_MSG ,"HybridNetwork", "DaqRtTask", "rt_daq_handler", "cpu - daq_card clock mismatch is higher than 0.5 ms. diff > diff_thres"); 	
-			if (diff < (-diff_thres)) 
-				print_message(WARNING_MSG ,"HybridNetwork", "DaqRtTask", "rt_daq_handler", "cpu - daq_card clock mismatch is higher than 0.5 ms. diff < (-diff_thres)"); 			
-
-//			printf ("%lld\n", count2nano(measured_time-prev_time));
-
+			curr_time -= sync_step;  // sync
+			net_diff -= sync_step; 
 		}
+		else if (diff < (-sync_step))
+		{
+			curr_time += sync_step;  // sync
+			net_diff += sync_step; 
+		}
+		else
+		{
+			curr_time = measured_time;
+			net_diff -= diff; 
+		}
+		if (diff > diff_thres) 
+			printf("DaqRtTask: diff > diff_thres\n"); 
+		if (diff < (-diff_thres)) 
+			printf("DaqRtTask: diff < (-diff_thres)\n"); 
+
+//		printf ("%lld\n", count2nano(net_diff));
+
 //		printf ("%lld\n", count2nano(measured_time-prev_time));
 
 		prev_time = measured_time;

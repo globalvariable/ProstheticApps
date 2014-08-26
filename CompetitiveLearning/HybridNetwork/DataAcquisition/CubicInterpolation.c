@@ -43,6 +43,11 @@ void cubic_interpolation(InterpolatedDataChan *interpolated_data_chan, Recording
 	a2 = (-0.5*y0) + (0.5*y2);
 	a3 = y1;
 
+/*	a0 = y3 - y2 - y0 + y1;
+	a1 = y0 - y1 - a0;
+	a2 = y2 - y0;
+	a3 = y1;
+*/
 	interpolated_data_chan_buff = interpolated_data_chan->data_buff;
 	write_idx = interpolated_data_chan->buff_idx_write; 
 
