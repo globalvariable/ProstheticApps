@@ -90,11 +90,13 @@ static void *rt_mov_obj_handler(void *args)
 {
 	RT_TASK *handler;
         RTIME period;
-	RTIME prev_time, curr_time;
+	RTIME prev_time, curr_time, execution_end;
 	RTIME expected;
 	unsigned int i, timer_cpuid, task_cpuid;
 	RTIME mov_obj_time_ns;
 	MovObjHand2MovObjDurHandMsgAdditional mov_obj_hand_2_mov_obj_dur_hand_additional_data;
+
+	unsigned int run_time_cntr = 0;
 
 	SEM *exp_envi_rx_buff_sem = NULL;
 	SEM *exp_envi_tx_buff_sem = NULL;
@@ -108,7 +110,7 @@ static void *rt_mov_obj_handler(void *args)
 		print_message(ERROR_MSG ,"MovObjHandler", "MovObjHandlerRtTask", "rt_mov_obj_handler", "! check_rt_task_specs_to_init()."); exit(1); }	
         if (! (handler = rt_task_init_schmod(MOV_OBJ_HANDLER_TASK_NAME, MOV_OBJ_HANDLER_TASK_PRIORITY, MOV_OBJ_HANDLER_STACK_SIZE, MOV_OBJ_HANDLER_MSG_SIZE,MOV_OBJ_HANDLER_POLICY, 1 << task_cpuid))) {
 		print_message(ERROR_MSG ,"MovObjHandler", "MovObjHandlerRtTask", "rt_mov_obj_handler", "handler = rt_task_init_schmod()."); exit(1); }
-	if (! write_rt_task_specs_to_rt_tasks_data(static_rt_tasks_data, MOV_OBJ_HANDLER_CPU_ID, MOV_OBJ_HANDLER_CPU_THREAD_ID, MOV_OBJ_HANDLER_CPU_THREAD_TASK_ID, MOV_OBJ_HANDLER_PERIOD, MOV_OBJ_HANDLER_POSITIVE_JITTER_THRES, MOV_OBJ_HANDLER_NEGATIVE_JITTER_THRES, "MovObjHandler", FALSE))  {
+	if (! write_rt_task_specs_to_rt_tasks_data(static_rt_tasks_data, MOV_OBJ_HANDLER_CPU_ID, MOV_OBJ_HANDLER_CPU_THREAD_ID, MOV_OBJ_HANDLER_CPU_THREAD_TASK_ID, MOV_OBJ_HANDLER_PERIOD, MOV_OBJ_HANDLER_POSITIVE_JITTER_THRES, MOV_OBJ_HANDLER_NEGATIVE_JITTER_THRES, MOV_OBJ_HANDLER_RUN_TIME_THRES, "MovObjHandler", FALSE))  {
 		print_message(ERROR_MSG ,"MovObjHandler", "MovObjHandlerRtTask", "rt_mov_obj_handler", "! write_rt_task_specs_to_rt_tasks_data()."); exit(1); }	
 
 	curr_time = rt_get_time_cpuid(task_cpuid);	
@@ -169,7 +171,14 @@ static void *rt_mov_obj_handler(void *args)
 		if (! handle_spike_data_buff(mov_obj_status, mov_obj_time_ns, scheduled_spike_data, static_robot_arm, static_mov_obj_paradigm))  {
 			print_message(ERROR_MSG ,"MovObjHandler", "MovObjHandlerRtTask", "rt_mov_obj_handler", "! handle_spike_data_buff()."); break; }
 		// routines	
-		evaluate_and_save_period_run_time(static_rt_tasks_data, MOV_OBJ_HANDLER_CPU_ID, MOV_OBJ_HANDLER_CPU_THREAD_ID, MOV_OBJ_HANDLER_CPU_THREAD_TASK_ID, curr_time, rt_get_time_cpuid(timer_cpuid));		
+		execution_end = rt_get_time_cpuid(timer_cpuid);
+		evaluate_and_save_period_run_time(static_rt_tasks_data, MOV_OBJ_HANDLER_CPU_ID, MOV_OBJ_HANDLER_CPU_THREAD_ID, MOV_OBJ_HANDLER_CPU_THREAD_TASK_ID, curr_time, execution_end);		
+		run_time_cntr++;
+		if (run_time_cntr == NUM_OF_TASK_EXECUTIONS_4_PERFOMANCE_EVAL)
+		{
+			run_time_cntr = 0;
+			write_run_time_to_averaging_buffer(static_rt_tasks_data, MOV_OBJ_HANDLER_CPU_ID, MOV_OBJ_HANDLER_CPU_THREAD_ID, MOV_OBJ_HANDLER_CPU_THREAD_TASK_ID, curr_time, execution_end);	
+		}
         }
 	rt_make_soft_real_time();
         rt_task_delete(handler);

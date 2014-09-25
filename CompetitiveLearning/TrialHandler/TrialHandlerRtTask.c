@@ -95,10 +95,12 @@ static void *rt_trial_handler(void *args)
 {
 	RT_TASK *handler;
         RTIME period;
-	RTIME prev_time, curr_time;
+	RTIME prev_time, curr_time, execution_end;
 	RTIME expected;
 	RTIME trial_hand_time_ns;
 	unsigned int timer_cpuid, task_cpuid;
+
+	unsigned int run_time_cntr = 0;
 
 	timer_cpuid = (SYSTIME_PERIODIC_CPU_ID*MAX_NUM_OF_CPU_THREADS_PER_CPU)+SYSTIME_PERIODIC_CPU_THREAD_ID;
 	task_cpuid = (TRIAL_HANDLER_CPU_ID*MAX_NUM_OF_CPU_THREADS_PER_CPU)+TRIAL_HANDLER_CPU_THREAD_ID;
@@ -107,7 +109,7 @@ static void *rt_trial_handler(void *args)
 		print_message(ERROR_MSG ,"TrialHandler", "TrialHandlerRtTask", "rt_trial_handler", "! check_rt_task_specs_to_init()."); exit(1); }	
         if (! (handler = rt_task_init_schmod(TRIAL_HANDLER_TASK_NAME, TRIAL_HANDLER_TASK_PRIORITY, TRIAL_HANDLER_STACK_SIZE, TRIAL_HANDLER_MSG_SIZE,TRIAL_HANDLER_POLICY, 1 << task_cpuid))) {
 		print_message(ERROR_MSG ,"TrialHandler", "TrialHandlerRtTask", "rt_trial_handler", "handler = rt_task_init_schmod()."); exit(1); }
-	if (! write_rt_task_specs_to_rt_tasks_data(static_rt_tasks_data, TRIAL_HANDLER_CPU_ID, TRIAL_HANDLER_CPU_THREAD_ID, TRIAL_HANDLER_CPU_THREAD_TASK_ID, TRIAL_HANDLER_PERIOD, TRIAL_HANDLER_POSITIVE_JITTER_THRES, TRIAL_HANDLER_NEGATIVE_JITTER_THRES, "TrialHandler", FALSE))  {
+	if (! write_rt_task_specs_to_rt_tasks_data(static_rt_tasks_data, TRIAL_HANDLER_CPU_ID, TRIAL_HANDLER_CPU_THREAD_ID, TRIAL_HANDLER_CPU_THREAD_TASK_ID, TRIAL_HANDLER_PERIOD, TRIAL_HANDLER_POSITIVE_JITTER_THRES, TRIAL_HANDLER_NEGATIVE_JITTER_THRES, TRIAL_HANDLER_RUN_TIME_THRES, "TrialHandler", FALSE))  {
 		print_message(ERROR_MSG ,"TrialHandler", "TrialHandlerRtTask", "rt_trial_handler", "! write_rt_task_specs_to_rt_tasks_data()."); exit(1); }	
 
 	curr_time = rt_get_time_cpuid(task_cpuid);	
@@ -164,7 +166,14 @@ static void *rt_trial_handler(void *args)
 		if (!handle_trial_dur_handler_to_trial_handler_msg(trial_hand_time_ns))  {
 			print_message(ERROR_MSG ,"TrialHandler", "TrialHandlerRtTask", "rt_trial_handler", "! handle_trial_dur_handler_to_trial_handler_msg()."); break; }
 		// routines	
-		evaluate_and_save_period_run_time(static_rt_tasks_data, TRIAL_HANDLER_CPU_ID, TRIAL_HANDLER_CPU_THREAD_ID, TRIAL_HANDLER_CPU_THREAD_TASK_ID, curr_time, rt_get_time_cpuid(timer_cpuid));		
+		execution_end = rt_get_time_cpuid(timer_cpuid);
+		evaluate_and_save_period_run_time(static_rt_tasks_data, TRIAL_HANDLER_CPU_ID, TRIAL_HANDLER_CPU_THREAD_ID, TRIAL_HANDLER_CPU_THREAD_TASK_ID, curr_time, execution_end);		
+		run_time_cntr++;
+		if (run_time_cntr == NUM_OF_TASK_EXECUTIONS_4_PERFOMANCE_EVAL)
+		{
+			run_time_cntr = 0;
+			write_run_time_to_averaging_buffer(static_rt_tasks_data, TRIAL_HANDLER_CPU_ID, TRIAL_HANDLER_CPU_THREAD_ID, TRIAL_HANDLER_CPU_THREAD_TASK_ID, curr_time, execution_end);	
+		}	
         }
 	rt_make_soft_real_time();
         rt_task_delete(handler);

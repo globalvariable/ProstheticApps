@@ -8,7 +8,7 @@
 #include "TrialData.h"
 #include "../../../BlueSpike/Library/Misc/Averaging.h"
 
-#define REWARD_PREDICTION_WINDOW	3.0
+#define REWARD_PREDICTION_WINDOW	4.0
 
 
 typedef struct 

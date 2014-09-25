@@ -37,7 +37,7 @@ static void *rt_periodic_handler(void *args)
 		print_message(ERROR_MSG ,"PCIe6259", "RtTask", "rt_periodic_handler", "! check_rt_task_specs_to_init()."); exit(1); }	
         if (! (handler = rt_task_init_schmod(SYSTIME_PERIODIC_TASK_NAME, SYSTIME_PERIODIC_TASK_PRIORITY, SYSTIME_PERIODIC_STACK_SIZE, SYSTIME_PERIODIC_MSG_SIZE,SYSTIME_PERIODIC_POLICY, 1 << ((SYSTIME_PERIODIC_CPU_ID*MAX_NUM_OF_CPU_THREADS_PER_CPU)+SYSTIME_PERIODIC_CPU_THREAD_ID)))) {
 		print_message(ERROR_MSG ,"PCIe6259", "RtTask", "rt_periodic_handler", "handler = rt_task_init_schmod()."); exit(1); }
-	if (! write_rt_task_specs_to_rt_tasks_data(rt_tasks_data, SYSTIME_PERIODIC_CPU_ID, SYSTIME_PERIODIC_CPU_THREAD_ID, SYSTIME_PERIODIC_CPU_THREAD_TASK_ID, SYSTIME_PERIODIC_PERIOD, SYSTIME_PERIODIC_POSITIVE_JITTER_THRES, SYSTIME_PERIODIC_NEGATIVE_JITTER_THRES, "SystemTime", TRUE) ) {
+	if (! write_rt_task_specs_to_rt_tasks_data(rt_tasks_data, SYSTIME_PERIODIC_CPU_ID, SYSTIME_PERIODIC_CPU_THREAD_ID, SYSTIME_PERIODIC_CPU_THREAD_TASK_ID, SYSTIME_PERIODIC_PERIOD, SYSTIME_PERIODIC_POSITIVE_JITTER_THRES, SYSTIME_PERIODIC_NEGATIVE_JITTER_THRES, SYSTIME_PERIODIC_RUN_TIME_THRES, "SystemTime", TRUE) ) {
 		print_message(ERROR_MSG ,"PCIe6259", "RtTask", "rt_periodic_handler", "! write_rt_task_specs_to_rt_tasks_data()."); exit(1); }	
 
 

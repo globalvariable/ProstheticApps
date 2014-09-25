@@ -57,8 +57,8 @@ bool connect_external_to_in_silico_network(void)
 	Neuron *nrn;
 	unsigned int i, j, k, cntr = 0;
 	
-	bool connection_matrix[3][2] = {	{0,1},
-								{1,0},
+	bool connection_matrix[3][2] = {	{1,0},
+								{0,1},
 								{1,1}};
 
 	for (i=0; i < blue_spike_network->layer_count; i++)
@@ -144,6 +144,7 @@ void update_synaptic_weights_all_neurons_in_thread(Neuron **all_neurons, unsigne
 	SynapseIndex		num_of_synapses; 
 	double	E, dw;  // eligibility
 	double sum_weights, diff_weights;
+	double max_weight;
 
 	for (i = task_num; i < num_of_all_neurons; i+=num_of_dedicated_cpus)  // simulate the neurons for which this thread is responsible
 	{
@@ -152,7 +153,7 @@ void update_synaptic_weights_all_neurons_in_thread(Neuron **all_neurons, unsigne
 			continue;
 		synapses = nrn->syn_list->synapses;
 		num_of_synapses = nrn->syn_list->num_of_synapses;
-
+		max_weight = (total_synaptic_weights/num_of_synapses)*2.5;
 		for (j = 0; j < num_of_synapses; j++)
 		{
 			if (! synapses[j].plastic)
@@ -163,8 +164,12 @@ void update_synaptic_weights_all_neurons_in_thread(Neuron **all_neurons, unsigne
 				E = 0;
 			
 			dw = reward * E * synapses[j].weight;
-
 			synapses[j].weight+=dw;
+			if (synapses[j].weight > max_weight)
+			{
+				synapses[j].weight = max_weight;
+			}
+
 		}
 		sum_weights = 0;
 		for (j = 0; j < num_of_synapses; j++)

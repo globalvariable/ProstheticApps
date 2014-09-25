@@ -28,15 +28,21 @@ bool start_acquisition(void)
 static void *rt_daq_handler(void *args)
 {
 	RT_TASK *handler;
-	RTIME curr_time, measured_time, prev_time, latency;
+	RTIME curr_time, measured_time, prev_time, latency, execution_end;
 	RTIME current_daq_time;
         RTIME period;
-        RTIME sync_step, diff, diff_thres, net_diff = 0;
+        RTIME sync_step, diff, diff_thres;
 	unsigned int daq_num;
 	long int cb_val = 0, cb_retval = 0;
 	lsampl_t daq_data[MAX_NUM_OF_CHANNEL_PER_DAQ_CARD*NUM_OF_SCAN];
 
 	unsigned int timer_cpuid;
+
+	int remaining_scan_cntr = 0, jitter_counter = 0, warning_amount = 10;
+
+	long ret = 0, ret_read = 0;
+
+	unsigned run_time_cntr = 0;
 
 	comedi_insn insn;
 	lsampl_t insn_data[1];
@@ -53,14 +59,14 @@ static void *rt_daq_handler(void *args)
 	insn_data[0] = 0;
 
 	period = nano2count(BLUESPIKE_DAQ_PERIOD);
-	sync_step = nano2count(2000);	// 2 microseconds
-	diff_thres = nano2count(500000);	// 500 microseconds
+	sync_step = nano2count(500);	// 0.5 microseconds
+	diff_thres = nano2count(400000);	// 500 microseconds
 
 	if (! check_rt_task_specs_to_init(rt_tasks_data, BLUESPIKE_DAQ_CPU_ID, BLUESPIKE_DAQ_CPU_THREAD_ID, BLUESPIKE_DAQ_CPU_THREAD_TASK_ID+daq_num, BLUESPIKE_DAQ_PERIOD, TRUE))  {
 		print_message(ERROR_MSG ,"PCIe6259", "RtTask", "rt_periodic_handler", "! check_rt_task_specs_to_init()."); exit(1); }
         if (! (handler = rt_task_init_schmod(BLUESPIKE_DAQ_TASK_NAME, BLUESPIKE_DAQ_TASK_PRIORITY, BLUESPIKE_DAQ_STACK_SIZE, BLUESPIKE_DAQ_MSG_SIZE,BLUESPIKE_DAQ_POLICY, 1 << ((BLUESPIKE_DAQ_CPU_ID*MAX_NUM_OF_CPU_THREADS_PER_CPU)+BLUESPIKE_DAQ_CPU_THREAD_ID)))) {
 		print_message(ERROR_MSG ,"PCIe6259", "RtTask", "rt_daq_handler", "handler = rt_task_init_schmod()."); exit(1); }
-	if (! write_rt_task_specs_to_rt_tasks_data(rt_tasks_data, BLUESPIKE_DAQ_CPU_ID, BLUESPIKE_DAQ_CPU_THREAD_ID, BLUESPIKE_DAQ_CPU_THREAD_TASK_ID+daq_num, BLUESPIKE_DAQ_PERIOD, BLUESPIKE_DAQ_POSITIVE_JITTER_THRES, BLUESPIKE_DAQ_NEGATIVE_JITTER_THRES, "BlueSpike", TRUE) ) {
+	if (! write_rt_task_specs_to_rt_tasks_data(rt_tasks_data, BLUESPIKE_DAQ_CPU_ID, BLUESPIKE_DAQ_CPU_THREAD_ID, BLUESPIKE_DAQ_CPU_THREAD_TASK_ID+daq_num, BLUESPIKE_DAQ_PERIOD, BLUESPIKE_DAQ_POSITIVE_JITTER_THRES, BLUESPIKE_DAQ_NEGATIVE_JITTER_THRES, BLUESPIKE_DAQ_RUN_TIME_THRES, "BlueSpike", TRUE) ) {
 		print_message(ERROR_MSG ,"PCIe6259", "RtTask", "rt_periodic_handler", "! write_rt_task_specs_to_rt_tasks_data()."); exit(1); }	
 
 
@@ -98,6 +104,12 @@ static void *rt_daq_handler(void *args)
 		cb_val = 0;
 		cb_retval += rt_comedi_wait(&cb_val);
 
+		if (cb_retval != 0)
+		{
+			printf ("cb_retval : %ld\n", cb_retval);
+			cb_retval = 0;
+		}
+
 		measured_time = rt_get_time_cpuid(timer_cpuid);	
 
 		curr_time += period;	
@@ -108,22 +120,27 @@ static void *rt_daq_handler(void *args)
 		if (diff > sync_step)
 		{
 			curr_time -= sync_step;  // sync
-			net_diff -= sync_step; 
 		}
 		else if (diff < (-sync_step))
 		{
 			curr_time += sync_step;  // sync
-			net_diff += sync_step; 
 		}
 		else
 		{
 			curr_time = measured_time;
-			net_diff -= diff; 
 		}
 		if (diff > diff_thres) 
-			printf("DaqRtTask: diff > diff_thres\n"); 
+			printf("-jitter\n"); 
 		if (diff < (-diff_thres)) 
-			printf("DaqRtTask: diff < (-diff_thres)\n"); 
+		{
+			jitter_counter++;
+			if (jitter_counter > warning_amount)	// jitter higher than warning_amount*BLUESPIKE_DAQ_PERIOD or sync_step is not enough or there is missing data
+				printf("+Jitter\n"); 
+		}
+		else
+		{
+			jitter_counter = 0;
+		}
 
 //		printf ("%lld\n", count2nano(net_diff));
 
@@ -140,6 +157,12 @@ static void *rt_daq_handler(void *args)
 		}
 
 		rt_comedi_command_data_read(ni6259_comedi_dev[daq_num], COMEDI_SUBDEVICE_AI, MAX_NUM_OF_CHANNEL_PER_DAQ_CARD*NUM_OF_SCAN, daq_data);
+		ret = rt_comedi_get_buffer_contents(ni6259_comedi_dev[daq_num], COMEDI_SUBDEVICE_AI);
+		if (ret >= (MAX_NUM_OF_CHANNEL_PER_DAQ_CARD*NUM_OF_SCAN*2))
+		{
+			remaining_scan_cntr++;
+		}
+
 
 		pthread_mutex_lock(&(daq_mwa_map[daq_num].mutex));   // do not allow mapping change by configdaqgui during processing retrieved data. 	
 
@@ -152,8 +175,36 @@ static void *rt_daq_handler(void *args)
 		}
 
 		pthread_mutex_unlock(&(daq_mwa_map[daq_num].mutex)); 
+
+		if (remaining_scan_cntr == warning_amount)
+		{
+			remaining_scan_cntr = 0;
+			ret_read  = rt_comedi_command_data_read(ni6259_comedi_dev[daq_num], COMEDI_SUBDEVICE_AI, MAX_NUM_OF_CHANNEL_PER_DAQ_CARD*NUM_OF_SCAN, daq_data);
+			printf ("read = %ld\n", ret_read );
+
+			curr_time += period;	
+			current_daq_time = count2nano(curr_time - latency);
+
+			pthread_mutex_lock(&(daq_mwa_map[daq_num].mutex));   // do not allow mapping change by configdaqgui during processing retrieved data. 	
+
+			handle_recording_data(daq_num, daq_data);
+			if (! spike_sorting(daq_num, current_daq_time - (SAMPLING_INTERVAL*NUM_OF_SCAN)))
+			{
+				print_message(ERROR_MSG ,"HybridNetwork", "DaqRtTask", "rt_daq_handler", "! spike_sorting())."); 
+				break;
+			}
+
+			pthread_mutex_unlock(&(daq_mwa_map[daq_num].mutex)); 			
+		}
 		// routines	
-		evaluate_and_save_period_run_time(rt_tasks_data, BLUESPIKE_DAQ_CPU_ID, BLUESPIKE_DAQ_CPU_THREAD_ID, BLUESPIKE_DAQ_CPU_THREAD_TASK_ID+daq_num, measured_time, rt_get_time_cpuid(timer_cpuid));		
+		execution_end = rt_get_time_cpuid(timer_cpuid);
+		evaluate_and_save_period_run_time(rt_tasks_data, BLUESPIKE_DAQ_CPU_ID, BLUESPIKE_DAQ_CPU_THREAD_ID, BLUESPIKE_DAQ_CPU_THREAD_TASK_ID, measured_time, execution_end);
+		run_time_cntr++;
+		if (run_time_cntr == NUM_OF_TASK_EXECUTIONS_4_PERFOMANCE_EVAL)
+		{
+			run_time_cntr = 0;
+			write_run_time_to_averaging_buffer(rt_tasks_data, BLUESPIKE_DAQ_CPU_ID, BLUESPIKE_DAQ_CPU_THREAD_ID, BLUESPIKE_DAQ_CPU_THREAD_TASK_ID, measured_time, execution_end);
+		}	
         }
 	close_daq_cards(daq_num);
 	rt_make_soft_real_time();

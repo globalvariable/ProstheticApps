@@ -82,7 +82,7 @@ bool write_trial_data_to_classified_trial_history(ClassifiedTrialHistory* classi
  	dest_history_data = classified_history->all_trials;
 	curr_trial_data = &(dest_history_data->history[dest_history_data->buff_write_idx]);
 	memcpy(curr_trial_data, trial_data, sizeof(TrialData));
-	prev_trial_data = get_previous_trial_history_data_ptr(dest_history_data);
+	prev_trial_data = get_previous_trial_history_data_ptr(dest_history_data, 1);
 	curr_trial_data->num_of_trials = prev_trial_data->num_of_trials+1;
 	curr_trial_data->success_ratio = (((double)prev_trial_data->num_of_trials * prev_trial_data->success_ratio) + (double)curr_trial_data->binary_reward) / (double)curr_trial_data->num_of_trials;
 	if (curr_trial_data->trial_incomplete)
@@ -103,7 +103,7 @@ bool write_trial_data_to_classified_trial_history(ClassifiedTrialHistory* classi
  	dest_history_data = classified_history->trial_types[trial_data->robot_target_position_idx];
 	curr_trial_data = &(dest_history_data->history[dest_history_data->buff_write_idx]);
 	memcpy(curr_trial_data, trial_data, sizeof(TrialData));
-	prev_trial_data = get_previous_trial_history_data_ptr(dest_history_data);
+	prev_trial_data = get_previous_trial_history_data_ptr(dest_history_data, 1);
 	curr_trial_data->num_of_trials = prev_trial_data->num_of_trials+1;
 	curr_trial_data->success_ratio = (((double)prev_trial_data->num_of_trials * prev_trial_data->success_ratio) + (double)curr_trial_data->binary_reward) / (double)curr_trial_data->num_of_trials;
 	if (curr_trial_data->trial_incomplete)
@@ -123,13 +123,13 @@ bool write_trial_data_to_classified_trial_history(ClassifiedTrialHistory* classi
 	return TRUE;
 }
 
-TrialData* get_previous_trial_history_data_ptr(TrialHistory* hist)
+TrialData* get_previous_trial_history_data_ptr(TrialHistory* hist, unsigned int prev_idx)	// prev_idx zero brings the current trial data. 
 {
-	unsigned int idx = hist->buff_write_idx;
-	if (idx == 0)
-		idx = hist->buffer_size - 1;
+	int idx = hist->buff_write_idx;
+	if (idx < prev_idx)
+		idx = hist->buffer_size + idx - prev_idx;
 	else
-		idx --;
+		idx = idx - prev_idx;
 	return &(hist->history[idx]);
 }
 

@@ -27,7 +27,7 @@ int main( int argc, char *argv[])
 
 	paradigm->max_trial_length = g_new0(TimeStamp, paradigm->num_of_difficulty_levels);
 
-	paradigm->max_trial_length[0] = 3500000000;
+	paradigm->max_trial_length[0] = 3000000000;
 	for (i = 1; i < paradigm->num_of_difficulty_levels; i++)
 	{
 //		paradigm->max_trial_length[i] = paradigm->max_trial_length[i-1] + 2500000000;

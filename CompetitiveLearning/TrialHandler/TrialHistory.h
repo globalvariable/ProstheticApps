@@ -30,5 +30,5 @@ ClassifiedTrialHistory* allocate_classified_trial_history(ClassifiedTrialHistory
 ClassifiedTrialHistory* deallocate_classified_trial_history(ClassifiedTrialHistory* classified_hist);
 bool write_trial_data_to_classified_trial_history(ClassifiedTrialHistory* classified_history, TrialData *trial_data);
 
-TrialData* get_previous_trial_history_data_ptr(TrialHistory* hist);
+TrialData* get_previous_trial_history_data_ptr(TrialHistory* hist, unsigned int prev_idx);	// prev_idx zero brings the current trial data. 
 #endif

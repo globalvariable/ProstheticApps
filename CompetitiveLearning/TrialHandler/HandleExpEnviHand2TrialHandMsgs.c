@@ -23,6 +23,8 @@ bool handle_exp_envi_handler_to_trial_handler_msg(TimeStamp current_time)
 	TrialHand2NeuralNetMsgAdditional trial_hand_to_neural_net_msg_add;
 	TrialData *prev_trial_w_type;
 
+	unsigned int trial_types_sum;
+
 	while (get_next_exp_envi_hand_2_trial_hand_msg_buffer_item(msgs_exp_envi_hand_2_trial_hand, &msg_item))
 	{
 		get_exp_envi_hand_2_trial_hand_msg_type_string(msg_item.msg_type, str_exp_envi_msg);
@@ -50,7 +52,7 @@ bool handle_exp_envi_handler_to_trial_handler_msg(TimeStamp current_time)
 							return print_message(ERROR_MSG ,"TrialHandler", "HandleTrialDurHand2TrialHandMsgs", "handle_exp_envi_handler_to_trial_handler_msg", "write_to_trial_hand_2_exp_envi_hand_msg_buffer()");
 
 
-						prev_trial_w_type = get_previous_trial_history_data_ptr(classified_history->trial_types[paradigm->current_trial_data.robot_target_position_idx]);
+						prev_trial_w_type = get_previous_trial_history_data_ptr(classified_history->trial_types[paradigm->current_trial_data.robot_target_position_idx], 1);
 
 						if (prev_trial_w_type->binary_reward)
 						{
@@ -110,9 +112,22 @@ bool handle_exp_envi_handler_to_trial_handler_msg(TimeStamp current_time)
 						paradigm->current_trial_data.trial_length = 0;
 
 						if (paradigm->current_trial_data.auto_target_select_mode_on)
+						{
 							paradigm->current_trial_data.robot_target_position_idx = (unsigned int)(paradigm->num_of_robot_target_positions * get_rand_number());   ///  Bunu trial bittiginde yap.
+							trial_types_sum = 0;
+							trial_types_sum += get_previous_trial_history_data_ptr(classified_history->all_trials, 1)->robot_target_position_idx;
+							trial_types_sum += get_previous_trial_history_data_ptr(classified_history->all_trials, 2)->robot_target_position_idx;
+							trial_types_sum += get_previous_trial_history_data_ptr(classified_history->all_trials, 3)->robot_target_position_idx;
+							trial_types_sum += paradigm->current_trial_data.robot_target_position_idx;
+							if (trial_types_sum > 3)	// do not allow 4 consecutive right trials
+								paradigm->current_trial_data.robot_target_position_idx = 0;
+							if (trial_types_sum == 0)	// do not allow 4 consecutive left trials
+								paradigm->current_trial_data.robot_target_position_idx = 1;
+						}
 						else
+						{
 							paradigm->current_trial_data.robot_target_position_idx = paradigm->current_trial_data.gui_selected_target_position_idx;
+						}
 
 						paradigm->current_trial_data.target_led_component_list_idx = paradigm->current_trial_data.robot_target_position_idx;
 					

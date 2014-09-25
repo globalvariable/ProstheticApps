@@ -42,6 +42,9 @@ bool handle_spike_data_buff(MovObjStatus mov_obj_status, TimeStamp current_time,
 				else
 					(*read_idx)++;
 			}    
+
+			clear_spike_count_memo_of_servo(&(robot->servos[BASE_SERVO]));
+
 			previous_system_time = current_time;
 			break;
 		case MOV_OBJ_STATUS_STAYING_AT_START_POINT:

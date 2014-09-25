@@ -79,7 +79,7 @@ static void *rt_exp_envi_duration_handler(void *args)
 		print_message(ERROR_MSG ,"BMIExpController", "ExpEnviDurationHandlerRtTask", "rt_exp_envi_duration_handler", "! check_rt_task_specs_to_init()."); exit(1); }	
         if (! (handler = rt_task_init_schmod(EXP_ENVI_DURATION_HANDLER_TASK_NAME, EXP_ENVI_DURATION_HANDLER_TASK_PRIORITY, EXP_ENVI_DURATION_HANDLER_STACK_SIZE, EXP_ENVI_DURATION_HANDLER_MSG_SIZE,EXP_ENVI_DURATION_HANDLER_POLICY, 1 << task_cpuid))) {
 		print_message(ERROR_MSG ,"BMIExpController", "ExpEnviDurationHandlerRtTask", "rt_exp_envi_duration_handler", "handler = rt_task_init_schmod()."); exit(1); }
-	if (! write_rt_task_specs_to_rt_tasks_data(static_rt_tasks_data, EXP_ENVI_DURATION_HANDLER_CPU_ID, EXP_ENVI_DURATION_HANDLER_CPU_THREAD_ID, EXP_ENVI_DURATION_HANDLER_CPU_THREAD_TASK_ID, EXP_ENVI_DURATION_HANDLER_PERIOD, EXP_ENVI_DURATION_HANDLER_POSITIVE_JITTER_THRES, EXP_ENVI_DURATION_HANDLER_NEGATIVE_JITTER_THRES, "ExpEnviDurationHandler", FALSE))  {
+	if (! write_rt_task_specs_to_rt_tasks_data(static_rt_tasks_data, EXP_ENVI_DURATION_HANDLER_CPU_ID, EXP_ENVI_DURATION_HANDLER_CPU_THREAD_ID, EXP_ENVI_DURATION_HANDLER_CPU_THREAD_TASK_ID, EXP_ENVI_DURATION_HANDLER_PERIOD, EXP_ENVI_DURATION_HANDLER_POSITIVE_JITTER_THRES, EXP_ENVI_DURATION_HANDLER_NEGATIVE_JITTER_THRES, EXP_ENVI_DURATION_HANDLER_RUN_TIME_THRES, "ExpEnviDurationHandler", FALSE))  {
 		print_message(ERROR_MSG ,"BMIExpController", "ExpEnviDurationHandlerRtTask", "rt_exp_envi_duration_handler", "! write_rt_task_specs_to_rt_tasks_data()."); exit(1); }	
 
 	curr_time = rt_get_time_cpuid(task_cpuid);	

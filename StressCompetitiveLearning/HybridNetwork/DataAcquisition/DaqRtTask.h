@@ -11,7 +11,7 @@
 #include <rtai_lxrt.h>
 #include "DaqCardConfig.h"
 #include "../../../../BlueSpike/System/TimeStamp/TimeStamp.h"
-#include "../../../BlueSpike/Library/RtTaskStats/RtTaskStats.h"
+#include "../../../../BlueSpike/Library/Misc/Summing.h"
 #include "../HybridNetworkData.h"
 #include "../../TaskConfig.h"
 #include "ConfigDaq/DaqCard.h"
@@ -25,6 +25,7 @@
 bool daq_cards_on;
 
 bool start_acquisition(void);
+
 
 #endif
 

@@ -23,6 +23,8 @@ bool handle_trial_dur_handler_to_trial_handler_msg(TimeStamp current_time)
 	TrialHand2MovObjHandMsgAdditional  trial_hand_2_mov_obj_hand_add;
 	double remained_distance_to_target;
 
+	unsigned int trial_types_sum;
+
 	TimeStamp trial_length;
 	TrialHand2MovObjHandMsgAdditional  trial_hand_to_mov_obj_hand_msg_add;
 
@@ -89,9 +91,22 @@ bool handle_trial_dur_handler_to_trial_handler_msg(TimeStamp current_time)
 	//						paradigm->current_trial_data.robot_start_position_idx = (unsigned int)(paradigm->num_of_robot_start_positions * get_rand_number());   ///  Bunu trial bittiginde yap.
 
 						if (paradigm->current_trial_data.auto_target_select_mode_on)
+						{
 							paradigm->current_trial_data.robot_target_position_idx = (unsigned int)(paradigm->num_of_robot_target_positions * get_rand_number());   ///  Bunu trial bittiginde yap.
+							trial_types_sum = 0;
+							trial_types_sum += get_previous_trial_history_data_ptr(classified_history->all_trials, 1)->robot_target_position_idx;
+							trial_types_sum += get_previous_trial_history_data_ptr(classified_history->all_trials, 2)->robot_target_position_idx;
+							trial_types_sum += get_previous_trial_history_data_ptr(classified_history->all_trials, 3)->robot_target_position_idx;
+							trial_types_sum += paradigm->current_trial_data.robot_target_position_idx;
+							if (trial_types_sum > 3)	// do not allow 4 consecutive right trials
+								paradigm->current_trial_data.robot_target_position_idx = 0;
+							if (trial_types_sum == 0)	// do not allow 4 consecutive left trials
+								paradigm->current_trial_data.robot_target_position_idx = 1;
+						}
 						else
+						{
 							paradigm->current_trial_data.robot_target_position_idx = paradigm->current_trial_data.gui_selected_target_position_idx;
+						}
 
 						paradigm->current_trial_data.target_led_component_list_idx = paradigm->current_trial_data.robot_target_position_idx;
 

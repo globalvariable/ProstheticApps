@@ -72,10 +72,12 @@ static void *rt_exp_envi_handler(void *args)
 {
 	RT_TASK *handler;
         RTIME period;
-	RTIME prev_time, curr_time;
+	RTIME prev_time, curr_time, execution_end;
 	RTIME expected;
 	RTIME exp_envi_hand_time_ns;
 	unsigned int timer_cpuid, task_cpuid;
+
+	unsigned int run_time_cntr = 0;
 
 	timer_cpuid = (SYSTIME_PERIODIC_CPU_ID*MAX_NUM_OF_CPU_THREADS_PER_CPU)+SYSTIME_PERIODIC_CPU_THREAD_ID;
 	task_cpuid = (EXP_ENVI_HANDLER_CPU_ID*MAX_NUM_OF_CPU_THREADS_PER_CPU)+EXP_ENVI_HANDLER_CPU_THREAD_ID;
@@ -89,7 +91,7 @@ static void *rt_exp_envi_handler(void *args)
 		print_message(ERROR_MSG ,"ExpEnviHandler", "ExpEnviHandlerRtTask", "rt_exp_envi_handler", "! check_rt_task_specs_to_init()."); exit(1); }	
         if (! (handler = rt_task_init_schmod(EXP_ENVI_HANDLER_TASK_NAME, EXP_ENVI_HANDLER_TASK_PRIORITY, EXP_ENVI_HANDLER_STACK_SIZE, EXP_ENVI_HANDLER_MSG_SIZE,EXP_ENVI_HANDLER_POLICY, 1 << task_cpuid))) {
 		print_message(ERROR_MSG ,"ExpEnviHandler", "ExpEnviHandlerRtTask", "rt_exp_envi_handler", "handler = rt_task_init_schmod()."); exit(1); }
-	if (! write_rt_task_specs_to_rt_tasks_data(static_rt_tasks_data, EXP_ENVI_HANDLER_CPU_ID, EXP_ENVI_HANDLER_CPU_THREAD_ID, EXP_ENVI_HANDLER_CPU_THREAD_TASK_ID, EXP_ENVI_HANDLER_PERIOD, EXP_ENVI_HANDLER_POSITIVE_JITTER_THRES, EXP_ENVI_HANDLER_NEGATIVE_JITTER_THRES, "ExpEnviHandler", FALSE))  {
+	if (! write_rt_task_specs_to_rt_tasks_data(static_rt_tasks_data, EXP_ENVI_HANDLER_CPU_ID, EXP_ENVI_HANDLER_CPU_THREAD_ID, EXP_ENVI_HANDLER_CPU_THREAD_TASK_ID, EXP_ENVI_HANDLER_PERIOD, EXP_ENVI_HANDLER_POSITIVE_JITTER_THRES, EXP_ENVI_HANDLER_NEGATIVE_JITTER_THRES, EXP_ENVI_HANDLER_RUN_TIME_THRES, "ExpEnviHandler", FALSE))  {
 		print_message(ERROR_MSG ,"ExpEnviHandler", "ExpEnviHandlerRtTask", "rt_exp_envi_handler", "! write_rt_task_specs_to_rt_tasks_data()."); exit(1); }	
 
 	// Initialization of semaphores should be done after initializing the rt task !!!!
@@ -136,7 +138,14 @@ static void *rt_exp_envi_handler(void *args)
 		if (! handle_exp_envi_tx_shm(static_exp_envi_data, exp_envi_hand_time_ns, static_exp_envi_output_status_history)) {
 			print_message(ERROR_MSG ,"ExpEnviHandler", "ExpEnviHandlerRtTask", "rt_exp_envi_handler", "! handle_exp_envi_tx_shm()."); break; }
 		// routines	
-		evaluate_and_save_period_run_time(static_rt_tasks_data, EXP_ENVI_HANDLER_CPU_ID, EXP_ENVI_HANDLER_CPU_THREAD_ID, EXP_ENVI_HANDLER_CPU_THREAD_TASK_ID, curr_time, rt_get_time_cpuid(timer_cpuid));		
+		execution_end = rt_get_time_cpuid(timer_cpuid);
+		evaluate_and_save_period_run_time(static_rt_tasks_data, EXP_ENVI_HANDLER_CPU_ID, EXP_ENVI_HANDLER_CPU_THREAD_ID, EXP_ENVI_HANDLER_CPU_THREAD_TASK_ID, curr_time, execution_end);		
+		run_time_cntr++;
+		if (run_time_cntr == NUM_OF_TASK_EXECUTIONS_4_PERFOMANCE_EVAL)
+		{
+			run_time_cntr = 0;
+			write_run_time_to_averaging_buffer(static_rt_tasks_data, EXP_ENVI_HANDLER_CPU_ID, EXP_ENVI_HANDLER_CPU_THREAD_ID, EXP_ENVI_HANDLER_CPU_THREAD_TASK_ID, curr_time, execution_end);	
+		}		
         }
 	rt_make_soft_real_time();
         rt_task_delete(handler);
