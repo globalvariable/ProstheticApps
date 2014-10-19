@@ -68,8 +68,8 @@ int main( int argc, char *argv[])
 	init_servo_spike_count_memo(&(robot_arm->servos[ELBOW_SERVO]), 4);
 
 	mov_obj_paradigm->stay_at_target_duration = 50000000;
-	mov_obj_paradigm->send_pw_command_wait_period = 25000000;
-	mov_obj_paradigm->receive_position_wait_period = 5000000;
+	mov_obj_paradigm->send_pw_command_wait_period = 26000000;
+	mov_obj_paradigm->receive_position_wait_period = 6000000;
 
 
 //	mov_obj_paradigm->spike_2_servo_degree_multiplier = 0.5;
